@@ -21,7 +21,7 @@ public class Story {
         this.chapters = chapters;
     }
 
-    // ONLY GETTERS ARE NEEDED, SINCE THESE FIELDS DON’T NEED TO BE MODIFIED AFTER CREATING THE OBJECT. A STORY IS IMMUTABLE.
+    // ONLY GETTERS ARE REQUIRED — THE STORY OBJECT IS IMMUTABLE.
     public String getStoryTitle() {
         return storyTitle;
     }
