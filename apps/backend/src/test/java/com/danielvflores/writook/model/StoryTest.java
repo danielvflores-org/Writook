@@ -11,7 +11,7 @@ class StoryTest {
     void testStoryCreation() {
         List<String> genres = Arrays.asList("Romance", "Drama");
         List<String> tags = Arrays.asList("Wattpad", "Escritura");
-        List<Object> chapters = Arrays.asList();
+        List<Chapter> chapters = Arrays.asList(new Chapter("Capítulo 1", "Texto", 1));
         Story story = new Story("Título", "Sinopsis", "Autor", 4.5, genres, tags, chapters);
         assertEquals("Título", story.getStoryTitle());
         assertEquals("Sinopsis", story.getStorySynopsis());

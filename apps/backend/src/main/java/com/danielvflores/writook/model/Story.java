@@ -8,10 +8,10 @@ public class Story {
     private final String author;
     private final List<String> genre;
     private final List<String> tags;
-    private final List<Object> chapters;
+    private final List<Chapter> chapters;
     private Double valorization;
 
-    public Story(String storyTitle, String storySynopsis, String author, Double valorization, List<String> genre, List<String> tags, List<Object> chapters) {
+    public Story(String storyTitle, String storySynopsis, String author, Double valorization, List<String> genre, List<String> tags, List<Chapter> chapters) {
         this.storyTitle = storyTitle;
         this.storySynopsis = storySynopsis;
         this.author = author;
@@ -46,7 +46,7 @@ public class Story {
         return tags;
     }
 
-    public List<Object> getChapters() {
+    public List<Chapter> getChapters() {
         return chapters;
     }
     
