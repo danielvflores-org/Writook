@@ -12,10 +12,11 @@ class StoryTest {
         List<String> genres = Arrays.asList("Romance", "Drama");
         List<String> tags = Arrays.asList("Wattpad", "Escritura");
         List<Chapter> chapters = Arrays.asList(new Chapter("Capítulo 1", "Texto", 1));
-        Story story = new Story("Título", "Sinopsis", "Autor", 4.5, genres, tags, chapters);
+        User author = new User("Autor", "autor@example.com", "password", "Autor Display", "Bio del autor", "url-perfil");
+        Story story = new Story("Título", "Sinopsis", author, 4.5, genres, tags, chapters);
         assertEquals("Título", story.getStoryTitle());
         assertEquals("Sinopsis", story.getStorySynopsis());
-        assertEquals("Autor", story.getAuthor());
+        assertEquals(author, story.getAuthor());
         assertEquals(4.5, story.getValorization());
         assertEquals(genres, story.getGenre());
         assertEquals(tags, story.getTags());
