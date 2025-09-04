@@ -3,7 +3,7 @@ package com.danielvflores.writook.model;
 public class User {
     private final String username;
     private final String email;
-    // FOR SECURITY, THIS PASSWORD WILL BE HASHED BEFORE STORING IT IN A DATABASE.
+    // FOR SECURITY REASONS, THIS PASSWORD WILL BE HASHED BEFORE BEING STORED IN THE DATABASE.
     private final String password;
     private final String displayName;
     private final String bio;
@@ -18,7 +18,7 @@ public class User {
         this.profilePictureUrl = profilePictureUrl;
     }
 
-    // ONLY GETTERS ARE NEEDED, SINCE THESE FIELDS DON’T NEED TO BE MODIFIED AFTER CREATING THE OBJECT. A USER IS IMMUTABLE.
+    // ONLY GETTERS ARE REQUIRED — THE USER OBJECT IS IMMUTABLE.
     public String getUsername() {
         return username;
     }
@@ -27,7 +27,7 @@ public class User {
         return email;
     }
 
-    // IN TO DEVELOPER MODE THIS GETTER IS AVAILABLE, IN PRODUCTION WILL NOT AVAILABLE
+    // THIS GETTER IS ONLY AVAILABLE IN DEVELOPER MODE. IT IS DISABLED IN PRODUCTION FOR SECURITY REASONS.
     public String getPassword() {
         return password;
     }
