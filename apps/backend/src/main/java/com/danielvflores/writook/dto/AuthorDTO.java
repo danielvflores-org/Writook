@@ -17,7 +17,7 @@ public class AuthorDTO {
         this.profilePictureUrl = profilePictureUrl;
     }
 
-    public AuthorDTO(User user) {
+    public AuthorDTO(User user) { // AuthorDTO from User entity, is a data transfer object (DTO) that represents an author.
         this.username = user.getUsername();
         this.displayName = user.getDisplayName();
         this.bio = user.getBio();
