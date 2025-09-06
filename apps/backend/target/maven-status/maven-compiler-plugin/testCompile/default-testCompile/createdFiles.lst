@@ -1,3 +1,4 @@
-com\danielvflores\writook\model\RedifineStoryParametersTest.class
 com\danielvflores\writook\model\StoryTest.class
 com\danielvflores\writook\model\ChapterTest.class
+com\danielvflores\writook\model\RedefineStoryParametersTest.class
+com\danielvflores\DTO\AuthorDTOManagmentTest.class
