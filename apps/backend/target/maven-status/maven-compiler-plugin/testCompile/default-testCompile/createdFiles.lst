@@ -1,4 +1,7 @@
 com\danielvflores\writook\model\StoryTest.class
-com\danielvflores\writook\model\ChapterTest.class
+com\danielvflores\writook\controller\UserControllerTest.class
 com\danielvflores\writook\model\RedefineStoryParametersTest.class
-com\danielvflores\DTO\AuthorDTOManagmentTest.class
+com\danielvflores\writook\model\ChapterTest.class
+com\danielvflores\writook\services\RegisterUserTest.class
+com\danielvflores\writook\dto\AuthorDTOTest.class
+com\danielvflores\writook\services\LoginUserTest.class
