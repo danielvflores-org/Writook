@@ -12,7 +12,7 @@ class StoryTest {
 
     @Test
     void testStoryCreation() {
-        User user = new User("danielvflores", "daniel@email.com", "hashPassword", "Daniel V. Flores", "A passionate writer.", "http://profile.url/image.jpg");
+        User user = new User("danielvflores", 2L,"daniel@email.com", "hashPassword", "Daniel V. Flores", "A passionate writer.", "http://profile.url/image.jpg");
         AuthorDTO authorDTO = new AuthorDTO(user);
         List<String> genres = Arrays.asList("Fantasía", "Aventura");
         List<String> tags = Arrays.asList("Dragones", "Poderes");
