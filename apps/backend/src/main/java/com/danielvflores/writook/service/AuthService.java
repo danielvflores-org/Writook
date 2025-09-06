@@ -1,6 +1,9 @@
 package com.danielvflores.writook.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import com.danielvflores.writook.model.User;
@@ -37,5 +40,18 @@ public class AuthService {
         return userService.getAllUsers().stream()
             .anyMatch(u -> u.getUsername().equals(username));
     }
+
+    public User getCurrentUser() {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    if (authentication == null || !authentication.isAuthenticated()) {
+        return null;
+    }
+    Object principal = authentication.getPrincipal();
+    if (principal instanceof UserDetails) {
+        String username = ((UserDetails) principal).getUsername();
+        return userService.findByUsername(username);
+    }
+    return null;
+}
     
 }
