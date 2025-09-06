@@ -2,44 +2,46 @@ package com.danielvflores.writook.model;
 
 import java.util.List;
 
+import com.danielvflores.writook.dto.AuthorDTO;
+
 public class Story {
-    private final String storyTitle;
-    private final String storySynopsis;
-    private final User author;
-    private final List<String> genre;
+    private final String title;
+    private final String synopsis;
+    private final AuthorDTO author;
+    private double rating;
+    private final List<String> genres;
     private final List<String> tags;
     private final List<Chapter> chapters;
-    private Double valorization;
 
-    public Story(String storyTitle, String storySynopsis, User author, Double valorization, List<String> genre, List<String> tags, List<Chapter> chapters) {
-        this.storyTitle = storyTitle;
-        this.storySynopsis = storySynopsis;
+    public Story(String title, String synopsis, AuthorDTO author, double rating, List<String> genres, List<String> tags, List<Chapter> chapters) {
+        this.title = title;
+        this.synopsis = synopsis;
         this.author = author;
-        this.valorization = valorization;
-        this.genre = genre;
+        this.rating = rating;
+        this.genres = genres;
         this.tags = tags;
         this.chapters = chapters;
     }
 
     // ONLY GETTERS ARE REQUIRED — THE STORY OBJECT IS IMMUTABLE.
-    public String getStoryTitle() {
-        return storyTitle;
+    public String getTitle() {
+        return title;
     }
 
-    public String getStorySynopsis() {
-        return storySynopsis;
+    public String getSynopsis() {
+        return synopsis;
     }
 
-    public User getAuthor() {
+    public AuthorDTO getAuthor() {
         return author;
     }
 
-    public Double getValorization() {
-        return valorization;
+    public double getRating() {
+        return rating;
     }
 
-    public List<String> getGenre() {
-        return genre;
+    public List<String> getGenres() {
+        return genres;
     }
 
     public List<String> getTags() {
@@ -49,10 +51,9 @@ public class Story {
     public List<Chapter> getChapters() {
         return chapters;
     }
-    
-    // ONLY SETTER FOR VALORIZATION, SINCE IT CAN CHANGE OVER TIME
-    public void setValorization(Double valorization) {
-        this.valorization = valorization;
-    }
 
+    // ONLY SETTER FOR RATING, SINCE IT CAN CHANGE OVER TIME
+    public void setRating(double rating) {
+        this.rating = rating;
+    }
 }
