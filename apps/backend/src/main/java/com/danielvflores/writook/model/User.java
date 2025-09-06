@@ -2,6 +2,7 @@ package com.danielvflores.writook.model;
 
 public class User {
     private final String username;
+    private Long id;
     private final String email;
     // FOR SECURITY REASONS, THIS PASSWORD WILL BE HASHED BEFORE BEING STORED IN THE DATABASE.
     private final String password;
@@ -9,8 +10,9 @@ public class User {
     private final String bio;
     private final String profilePictureUrl;
 
-    public User(String username, String email, String password, String displayName, String bio, String profilePictureUrl) {
+    public User(String username, Long id,String email, String password, String displayName, String bio, String profilePictureUrl) {
         this.username = username;
+        this.id = id;
         this.email = email;
         this.password = password;
         this.displayName = displayName;
@@ -42,6 +44,14 @@ public class User {
 
     public String getProfilePictureUrl() {
         return profilePictureUrl;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
 

@@ -15,7 +15,7 @@ import com.danielvflores.writook.model.User;
 @RequestMapping("/api/v1")
 public class ShowMyTestStory {
 
-    User testUser = new User("danielvflores", "daniel@email.com", "hashPassword", "Daniel V. Flores", "A passionate writer.", "http://profile.url/image.jpg");
+    User testUser = new User("danielvflores", 4L,"daniel@email.com", "hashPassword", "Daniel V. Flores", "A passionate writer.", "http://profile.url/image.jpg");
     AuthorDTO testAuthorDTO = new AuthorDTO(testUser);
     Chapter chapter1 = new Chapter("El despertar del dragón", "En un mundo donde los dioses y los humanos coexisten, Issei descubre que es el heredero de un antiguo linaje de dragones...", 1);
     Chapter chapter2 = new Chapter("El poder oculto", "Mientras Issei lucha por controlar sus nuevas habilidades, se encuentra con aliados inesperados y enemigos formidables...", 2);
