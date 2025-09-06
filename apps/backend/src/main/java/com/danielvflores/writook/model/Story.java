@@ -7,11 +7,11 @@ import com.danielvflores.writook.dto.AuthorDTO;
 public class Story {
     private final String title;
     private final String synopsis;
-    private final AuthorDTO author;
+    private final AuthorDTO author; // THIS IS A AGGREGATION RELATIONSHIP, THE AUTHOR CAN EXIST WITHOUT THE STORY.
     private double rating;
     private final List<String> genres;
     private final List<String> tags;
-    private final List<Chapter> chapters;
+    private final List<Chapter> chapters; // THIS IS A COMPOSITION RELATIONSHIP, IF THE STORY IS DELETED, THE CHAPTERS ARE DELETED TOO.
 
     public Story(String title, String synopsis, AuthorDTO author, double rating, List<String> genres, List<String> tags, List<Chapter> chapters) {
         this.title = title;
