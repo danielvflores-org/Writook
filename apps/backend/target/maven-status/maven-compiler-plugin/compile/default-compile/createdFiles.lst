@@ -1,8 +1,10 @@
 com\danielvflores\writook\dto\AuthorDTO.class
 com\danielvflores\writook\model\Chapter.class
+com\danielvflores\writook\service\UserService.class
 com\danielvflores\writook\controller\ShowMyTestStory.class
 com\danielvflores\writook\model\Story.class
 com\danielvflores\writook\model\User.class
 com\danielvflores\writook\controller\HealthController.class
 com\danielvflores\writook\controller\UserController.class
+com\danielvflores\writook\service\AuthService.class
 com\danielvflores\writook\WritookApplication.class
