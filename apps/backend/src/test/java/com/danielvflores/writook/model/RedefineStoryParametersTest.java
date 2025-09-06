@@ -12,7 +12,7 @@ class RedefineStoryParametersTest {
 
     @Test
     void testRedefineTitle() {
-        User author = new User("danielvflores", "daniel@email.com", "hashPassword", "Daniel V. Flores", "A passionate writer.", "http://profile.url/image.jpg");
+        User author = new User("danielvflores", 1L,"daniel@email.com", "hashPassword", "Daniel V. Flores", "A passionate writer.", "http://profile.url/image.jpg");
         AuthorDTO authorDTO = new AuthorDTO(author);
         List<String> genres = Arrays.asList("Fantasía", "Aventura");
         List<String> tags = Arrays.asList("Dragones", "Poderes");
