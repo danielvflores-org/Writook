@@ -1,0 +1,39 @@
+package com.danielvflores.writook.dto;
+
+import com.danielvflores.writook.model.User;
+
+public class AuthorDTO {
+    private String username;
+    private String displayName;
+    private String bio;
+    private String profilePictureUrl;
+
+    public AuthorDTO() {}
+
+    public AuthorDTO(String username, String displayName, String bio, String profilePictureUrl) {
+        this.username = username;
+        this.displayName = displayName;
+        this.bio = bio;
+        this.profilePictureUrl = profilePictureUrl;
+    }
+
+    public AuthorDTO(User user) {
+        this.username = user.getUsername();
+        this.displayName = user.getDisplayName();
+        this.bio = user.getBio();
+        this.profilePictureUrl = user.getProfilePictureUrl();
+    }
+
+    // GETTERS AND SETTERS FOR ALL FIELDS THIS CLASS IS MUTABLE AND FLEXIBLE.
+    public String getUsername() { return username; }
+    public void setUsername(String username) { this.username = username; }
+
+    public String getDisplayName() { return displayName; }
+    public void setDisplayName(String displayName) { this.displayName = displayName; }
+
+    public String getBio() { return bio; }
+    public void setBio(String bio) { this.bio = bio; }
+
+    public String getProfilePictureUrl() { return profilePictureUrl; }
+    public void setProfilePictureUrl(String profilePictureUrl) { this.profilePictureUrl = profilePictureUrl; }
+}

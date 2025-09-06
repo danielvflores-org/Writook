@@ -1,4 +1,16 @@
 {
     "java.configuration.updateBuildConfiguration": "automatic",
-    "java.compile.nullAnalysis.mode": "automatic"
+    "java.compile.nullAnalysis.mode": "automatic",
+
+    "files.watcherExclude": {
+    "**/node_modules": true,
+    "**/dist": true,
+    "**/build": true
+    },
+    "search.exclude": {
+    "**/node_modules": true,
+    "**/dist": true,
+    "**/build": true
+    }
+
 }

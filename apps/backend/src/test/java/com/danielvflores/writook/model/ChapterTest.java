@@ -7,8 +7,8 @@ class ChapterTest {
     @Test
     void testChapterCreation() {
         Chapter chapter = new Chapter("Capítulo 1", "Contenido del capítulo", 1);
-        assertEquals("Capítulo 1", chapter.getChapterTitle());
-        assertEquals("Contenido del capítulo", chapter.getChapterContent());
-        assertEquals(1, chapter.getChapterNumber());
+        assertEquals("Capítulo 1", chapter.getTitle());
+        assertEquals("Contenido del capítulo", chapter.getContent());
+        assertEquals(1, chapter.getNumber());
     }
 }
