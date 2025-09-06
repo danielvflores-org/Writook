@@ -7,9 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.Test;
 
 import com.danielvflores.writook.dto.AuthorDTO;
-import com.danielvflores.writook.model.Chapter;
-import com.danielvflores.writook.model.Story;
-import com.danielvflores.writook.model.User;
 
 class StoryTest {
 
