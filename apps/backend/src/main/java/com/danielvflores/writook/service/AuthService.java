@@ -47,11 +47,10 @@ public class AuthService {
         return null;
     }
     Object principal = authentication.getPrincipal();
-    if (principal instanceof UserDetails) {
-        String username = ((UserDetails) principal).getUsername();
+    if (principal instanceof UserDetails userDetails) {
+        String username = userDetails.getUsername();
         return userService.findByUsername(username);
     }
     return null;
-}
-    
+    }
 }
