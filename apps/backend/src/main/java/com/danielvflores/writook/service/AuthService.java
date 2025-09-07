@@ -15,9 +15,9 @@ public class AuthService {
     private UserService userService;
 
     // Basicall Logic for Auth Provisionally - without hashing method for passwords
-    public User login(String username, String password) {
+    public User login(String usernameOrEmail, String password) {
         User user = userService.getAllUsers().stream()
-            .filter(u -> u.getUsername().equals(username))
+            .filter(u -> u.getUsername().equals(usernameOrEmail) || u.getEmail().equals(usernameOrEmail))
             .findFirst()
             .orElse(null);
         if (user != null && user.getPassword().equals(password)) {
