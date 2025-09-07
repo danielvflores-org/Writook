@@ -1,5 +1,7 @@
 package com.danielvflores.writook.controller;
 
+import java.util.Collections;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,8 +13,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.danielvflores.writook.dto.LoginRequestDTO;
 import com.danielvflores.writook.dto.RegisterRequestDTO;
+import com.danielvflores.writook.dto.UserResponseDTO;
 import com.danielvflores.writook.model.User;
 import com.danielvflores.writook.service.AuthService;
+import com.danielvflores.writook.utility.TokenJWTUtility;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -39,16 +43,19 @@ public class AuthController {
         if (user == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
         }
-        return ResponseEntity.ok(user);
+        String token = TokenJWTUtility.generateToken(user.getUsername());
+        return ResponseEntity.ok(Collections.singletonMap("token", token));
     }
 
     @GetMapping("/me")
-    public ResponseEntity<User> getCurrentUser() {
+    public ResponseEntity<UserResponseDTO> getCurrentUser() {
         User user = authService.getCurrentUser();
+        
         if (user == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        return ResponseEntity.ok(user);
+        UserResponseDTO userResponse = new UserResponseDTO(user);
+        return ResponseEntity.ok(userResponse);
     }
 
 }
