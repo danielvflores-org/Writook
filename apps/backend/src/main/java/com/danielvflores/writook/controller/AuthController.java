@@ -12,8 +12,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.danielvflores.writook.dto.ApiResponseDTO;
 import com.danielvflores.writook.dto.LoginRequestDTO;
 import com.danielvflores.writook.dto.RegisterRequestDTO;
+import com.danielvflores.writook.dto.RegisterResponseDTO;
 import com.danielvflores.writook.dto.UserResponseDTO;
 import com.danielvflores.writook.model.User;
 import com.danielvflores.writook.service.AuthService;
@@ -28,7 +30,7 @@ public class AuthController {
     private AuthService authService;
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody RegisterRequestDTO request) {
+    public ResponseEntity<ApiResponseDTO> register(@RequestBody RegisterRequestDTO request) {
         try {
             User user = authService.register(
                 request.getUsername(),
@@ -36,37 +38,45 @@ public class AuthController {
                 request.getPassword(),
                 request.getDisplayName()
             );
-            return ResponseEntity.ok(user);
+
+            UserResponseDTO userResponse = new UserResponseDTO(user);
+            
+            RegisterResponseDTO response = new RegisterResponseDTO(userResponse);
+            ApiResponseDTO apiResponse = new ApiResponseDTO(true, "Usuario registrado exitosamente", response);
+            return ResponseEntity.ok(apiResponse);
         } catch (RuntimeException e) {
             if (e.getMessage().equals("User already exists")) {
-                return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body(Collections.singletonMap("error", "El usuario ya existe"));
+                ApiResponseDTO errorResponse = new ApiResponseDTO(false, "El usuario ya existe", null);
+                return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
             }
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Collections.singletonMap("error", "Error interno del servidor"));
+            ApiResponseDTO errorResponse = new ApiResponseDTO(false, "Error interno del servidor", null);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
         }
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequestDTO request) {
+    public ResponseEntity<ApiResponseDTO> login(@RequestBody LoginRequestDTO request) {
         User user = authService.login(request.getUsername(), request.getPassword());
         if (user == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(Collections.singletonMap("error", "Credenciales inválidas"));
+            ApiResponseDTO errorResponse = new ApiResponseDTO(false, "Credenciales inválidas", null);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
         }
         String token = TokenJWTUtility.generateToken(user.getUsername());
-        return ResponseEntity.ok(Collections.singletonMap("token", token));
+        ApiResponseDTO successResponse = new ApiResponseDTO(true, "Inicio de sesión exitoso", Collections.singletonMap("token", token));
+        return ResponseEntity.ok(successResponse);
     }
 
     @GetMapping("/me")
-    public ResponseEntity<UserResponseDTO> getCurrentUser() {
+    public ResponseEntity<ApiResponseDTO> getCurrentUser() {
         User user = authService.getCurrentUser();
         
         if (user == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            ApiResponseDTO errorResponse = new ApiResponseDTO(false, "Usuario no autenticado", null);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
         }
         UserResponseDTO userResponse = new UserResponseDTO(user);
-        return ResponseEntity.ok(userResponse);
+        ApiResponseDTO successResponse = new ApiResponseDTO(true, "Usuario autenticado", userResponse);
+        return ResponseEntity.ok(successResponse);
     }
 
 }
