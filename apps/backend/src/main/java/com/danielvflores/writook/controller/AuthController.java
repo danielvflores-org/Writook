@@ -32,6 +32,7 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<ApiResponseDTO> register(@RequestBody RegisterRequestDTO request) {
         try {
+
             User user = authService.register(
                 request.getUsername(),
                 request.getEmail(),
@@ -40,10 +41,11 @@ public class AuthController {
             );
 
             UserResponseDTO userResponse = new UserResponseDTO(user);
-            
             RegisterResponseDTO response = new RegisterResponseDTO(userResponse);
             ApiResponseDTO apiResponse = new ApiResponseDTO(true, "Usuario registrado exitosamente", response);
+            
             return ResponseEntity.ok(apiResponse);
+
         } catch (RuntimeException e) {
             if (e.getMessage().equals("User already exists")) {
                 ApiResponseDTO errorResponse = new ApiResponseDTO(false, "El usuario ya existe", null);
@@ -56,26 +58,33 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<ApiResponseDTO> login(@RequestBody LoginRequestDTO request) {
+
         User user = authService.login(request.getUsername(), request.getPassword());
+
         if (user == null) {
             ApiResponseDTO errorResponse = new ApiResponseDTO(false, "Credenciales inválidas", null);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
         }
+
         String token = TokenJWTUtility.generateToken(user.getUsername());
         ApiResponseDTO successResponse = new ApiResponseDTO(true, "Inicio de sesión exitoso", Collections.singletonMap("token", token));
+        
         return ResponseEntity.ok(successResponse);
     }
 
     @GetMapping("/me")
     public ResponseEntity<ApiResponseDTO> getCurrentUser() {
+
         User user = authService.getCurrentUser();
         
         if (user == null) {
             ApiResponseDTO errorResponse = new ApiResponseDTO(false, "Usuario no autenticado", null);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
         }
+
         UserResponseDTO userResponse = new UserResponseDTO(user);
         ApiResponseDTO successResponse = new ApiResponseDTO(true, "Usuario autenticado", userResponse);
+        
         return ResponseEntity.ok(successResponse);
     }
 
