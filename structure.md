@@ -63,5 +63,5 @@ writook/
     - API Documentation (Swagger or similar tool for API documentation).
     - Testing (Unit Tests, Integration Tests, End-to-End Tests).
 
-> 🚀 This project is a prototype aiming to compete with Wattpad and is an ambitious, long-term project.
+> 🚀 This project is a prototype aiming to compete with Wattpad and is an ambitious, long-term project. <br>
 > 📢 Please be patient and wait for updates and new features, as development is slow.
