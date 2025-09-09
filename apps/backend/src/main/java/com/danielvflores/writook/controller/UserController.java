@@ -21,6 +21,7 @@ import com.danielvflores.writook.service.UserService;
 @CrossOrigin(origins = "http://localhost:3000")
 public class UserController {
     
+    // THIS AUTOWIRED WILL BE CHANGE LATER WHEN I PRODUCE THE SERVICE
     @Autowired
     private UserService userService;
     

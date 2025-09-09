@@ -20,7 +20,7 @@ class StoryTest {
         Chapter chapter2 = new Chapter("Capítulo 2", "Contenido 2", 2);
         List<Chapter> chapters = Arrays.asList(chapter1, chapter2);
 
-        Story story = new Story("Título", "Sinopsis", authorDTO, 4.5, genres, tags, chapters);
+        Story story = new Story("Título", "Sinopsis", authorDTO, 4.5, genres, tags, chapters, 2L);
 
         assertEquals("Título", story.getTitle());
         assertEquals("Sinopsis", story.getSynopsis());
