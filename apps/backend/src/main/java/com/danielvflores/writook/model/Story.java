@@ -12,8 +12,9 @@ public class Story {
     private final List<String> genres;
     private final List<String> tags;
     private final List<Chapter> chapters; // THIS IS A COMPOSITION RELATIONSHIP, IF THE STORY IS DELETED, THE CHAPTERS ARE DELETED TOO.
+    private Long id;
 
-    public Story(String title, String synopsis, AuthorDTO author, double rating, List<String> genres, List<String> tags, List<Chapter> chapters) {
+    public Story(String title, String synopsis, AuthorDTO author, double rating, List<String> genres, List<String> tags, List<Chapter> chapters, Long id) {
         this.title = title;
         this.synopsis = synopsis;
         this.author = author;
@@ -21,6 +22,7 @@ public class Story {
         this.genres = genres;
         this.tags = tags;
         this.chapters = chapters;
+        this.id = id;
     }
 
     // ONLY GETTERS ARE REQUIRED — THE STORY OBJECT IS IMMUTABLE.
@@ -55,5 +57,13 @@ public class Story {
     // ONLY SETTER FOR RATING, SINCE IT CAN CHANGE OVER TIME
     public void setRating(double rating) {
         this.rating = rating;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 }

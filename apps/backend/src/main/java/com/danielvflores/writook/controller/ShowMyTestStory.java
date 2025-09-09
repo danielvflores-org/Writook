@@ -26,7 +26,8 @@ public class ShowMyTestStory {
         5.0,
         Arrays.asList("Fantasía", "Aventura"),
         Arrays.asList("Dragones", "Poderes", "Batallas épicas", "Issei"),
-        Arrays.asList(chapter1, chapter2)
+        Arrays.asList(chapter1, chapter2),
+        1L
     );
 
     @GetMapping("/test-story")

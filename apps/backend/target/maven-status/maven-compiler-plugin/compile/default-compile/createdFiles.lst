@@ -1,7 +1,6 @@
 com\danielvflores\writook\dto\UserResponseDTO.class
 com\danielvflores\writook\dto\RegisterRequestDTO.class
 com\danielvflores\writook\service\UserService.class
-com\danielvflores\writook\controller\ShowMyTestStory.class
 com\danielvflores\writook\model\Story.class
 com\danielvflores\writook\model\User.class
 com\danielvflores\writook\controller\HealthController.class

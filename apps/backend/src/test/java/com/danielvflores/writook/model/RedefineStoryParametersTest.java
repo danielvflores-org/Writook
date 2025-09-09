@@ -20,8 +20,8 @@ class RedefineStoryParametersTest {
         Chapter chapter2 = new Chapter("Capítulo 2", "Contenido 2", 2);
         List<Chapter> chapters = Arrays.asList(chapter1, chapter2);
 
-        Story original = new Story("Título A", "Sinopsis", authorDTO, 4.5, genres, tags, chapters);
-        Story modificado = new Story("Título B", original.getSynopsis(), original.getAuthor(), original.getRating(), original.getGenres(), original.getTags(), original.getChapters());
+        Story original = new Story("Título A", "Sinopsis", authorDTO, 4.5, genres, tags, chapters, 1L);
+        Story modificado = new Story("Título B", original.getSynopsis(), original.getAuthor(), original.getRating(), original.getGenres(), original.getTags(), original.getChapters(), 1L);
 
         assertEquals("Título A", original.getTitle());
         assertEquals("Título B", modificado.getTitle());
