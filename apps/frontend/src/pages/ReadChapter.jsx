@@ -142,7 +142,7 @@ export default function ReadChapter() {
               <span className="text-2xl">📖</span>
             </div>
             <div>
-              <h1 className="text-xl font-bold text-gray-800">{story.title}</h1>
+              <h1 className="text-xl font-bold text-gray-800">{story.title} - {chapter.title}</h1>
               <div className="flex items-center space-x-4 text-sm text-gray-600">
                 <span>Publicado - {new Date().toLocaleDateString('es', { 
                   year: 'numeric', 

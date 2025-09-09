@@ -12,7 +12,7 @@ export default function CreateChapter() {
   const [loading, setLoading] = useState(false);
   const editorRef = useRef(null);
 
-  // Configuración de TinyMCE
+  // TinyMCE Properties
   const editorConfig = {
     height: 500,
     menubar: false,
@@ -73,7 +73,7 @@ export default function CreateChapter() {
 
     setLoading(true);
     try {
-      // Primero, obtener la historia para saber cuántos capítulos tiene
+      // GET Story to add Chapter
       const storyResponse = await fetch(`http://localhost:8080/api/v1/stories/${storyId}`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('authToken')}`
@@ -91,7 +91,6 @@ export default function CreateChapter() {
         number: nextChapterNumber
       };
 
-      // Crear el capítulo agregándolo a la historia
       const updatedChapters = [...storyData.chapters, chapterData];
       const updatedStory = {
         ...storyData,

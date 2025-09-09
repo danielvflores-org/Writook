@@ -4,7 +4,7 @@ import { Editor } from '@tinymce/tinymce-react';
 import useAuth from '../config/AuthContext.js';
 
 export default function ChapterEditor() {
-  const { storyId, chapterId } = useParams(); // Obtener IDs de la URL
+  const { storyId, chapterId } = useParams();
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
   
@@ -15,7 +15,6 @@ export default function ChapterEditor() {
   const [storyTitle, setStoryTitle] = useState('');
   const editorRef = useRef(null);
 
-  // Verificar autenticación al cargar
   useEffect(() => {
     if (authLoading) return;
     
@@ -32,7 +31,7 @@ export default function ChapterEditor() {
     try {
       setLoading(true);
       
-      // Cargar datos de la historia con autenticación y verificación de propiedad
+      // GET DATA WITH AUTHORIZATION AND OWNERSHIP VERIFICATION
       const storyResponse = await fetch(`http://localhost:8080/api/v1/stories/${storyId}/ownership`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('authToken')}`
@@ -43,12 +42,10 @@ export default function ChapterEditor() {
         const storyData = await storyResponse.json();
         setStoryTitle(storyData.title);
         
-        // Encontrar el capítulo específico
         const chapter = storyData.chapters.find(ch => ch.number === parseInt(chapterId));
         if (chapter) {
           setTitle(chapter.title);
           setContent(chapter.content);
-          // Calcular palabras iniciales
           const textContent = chapter.content.replace(/<[^>]*>/g, '');
           const words = textContent.trim().split(/\s+/).length;
           setWordCount(textContent.trim() === '' ? 0 : words);
@@ -79,7 +76,7 @@ export default function ChapterEditor() {
     }
   };
 
-  // Configuración de TinyMCE (igual que antes)
+  // TinyMCE Properties
   const editorConfig = {
     height: 500,
     menubar: false,
@@ -120,7 +117,6 @@ export default function ChapterEditor() {
     }
   };
 
-  // Manejar cambios en el contenido
   const handleEditorChange = (content, editor) => {
     setContent(content);
     const textContent = editor.getContent({ format: 'text' });
@@ -128,7 +124,6 @@ export default function ChapterEditor() {
     setWordCount(textContent.trim() === '' ? 0 : words);
   };
 
-  // Guardar cambios del capítulo
   const handleSave = async () => {
     if (!title.trim()) {
       alert('❌ Por favor, ingresa un título para el capítulo');
@@ -144,7 +139,7 @@ export default function ChapterEditor() {
       const chapterData = {
         title: title.trim(),
         content: content,
-        number: parseInt(chapterId) // Asumiendo que chapterId es el número
+        number: parseInt(chapterId)
       };
 
       const response = await fetch(`http://localhost:8080/api/v1/stories/${storyId}/edit/${chapterId}`, {
@@ -168,12 +163,10 @@ export default function ChapterEditor() {
     }
   };
 
-  // Volver a la historia
   const handleBack = () => {
     navigate(`/myworks/${storyId}`);
   };
 
-  // Función para insertar texto rápido
   const insertQuickText = (text) => {
     if (editorRef.current) {
       editorRef.current.insertContent(text);
@@ -193,7 +186,7 @@ export default function ChapterEditor() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50">
-      {/* Header estilo Wattpad */}
+      {/* Header */}
       <div className="bg-white shadow-sm border-b">
         <div className="max-w-5xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
@@ -254,8 +247,8 @@ export default function ChapterEditor() {
       {/* Editor Container */}
       <div className="max-w-5xl mx-auto px-4 pb-6">
         <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-          
-          {/* Título del capítulo */}
+
+          {/* Chapter Title */}
           <div className="p-6 border-b border-gray-100">
             <input
               type="text"
@@ -266,7 +259,7 @@ export default function ChapterEditor() {
             />
           </div>
 
-          {/* Editor principal */}
+          {/* Main Editor */}
           <div className="p-6">
             <Editor
               apiKey='qagffr3pkuv17a8on1afax661irst1hbr4e6tbv888sz91jc'
