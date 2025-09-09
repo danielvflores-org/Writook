@@ -1,7 +1,11 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import LoginForm from "../components/LoginForm";
+import useAuth from "../config/AuthContext.js";
 
 function LoginPage() {
+  const { login } = useAuth();
+  const navigate = useNavigate();
+
   const handleLogin = async ({ email, password }) => {
     try {
       const response = await fetch("http://localhost:8080/api/v1/auth/login", {
@@ -18,9 +22,13 @@ function LoginPage() {
       const data = await response.json();
 
       if (response.ok) {
-        localStorage.setItem("token", data.token);
         console.log("Login exitoso:", data);
+        console.log("Token recibido:", data.data.token);
+        
+        login(data.data.token, data.data.user || { username: email });
+        
         alert("Login exitoso!");
+        window.location.href = "/home";
       } else {
         console.error("Error en login:", data);
         const errorMessage = data.error || data.message || "Error desconocido";
