@@ -14,10 +14,9 @@ export default function CreateStory() {
   });
   const [loading, setLoading] = useState(false);
 
-  // Géneros disponibles (puedes expandir esta lista)
   const availableGenres = [
     'Fantasía', 'Romance', 'Aventura', 'Misterio', 'Ciencia Ficción', 
-    'Horror', 'Drama', 'Comedia', 'Slice of Life', 'Histórico'
+    'Horror', 'Drama', 'Comedia', 'Slice of Life', 'Histórico', "Fanfics"
   ];
 
   const handleInputChange = (e) => {
@@ -65,10 +64,8 @@ export default function CreateStory() {
 
     setLoading(true);
     try {
-      // Debug: verificar token
+
       const token = localStorage.getItem('authToken');
-      console.log('🔑 Token encontrado:', token ? 'Sí' : 'No');
-      console.log('👤 Usuario actual:', user);
       
       if (!token) {
         alert('❌ No estás autenticado. Por favor inicia sesión.');
@@ -88,7 +85,7 @@ export default function CreateStory() {
         rating: 0.0,
         genres: formData.genres,
         tags: formData.tags.length > 0 ? formData.tags : ["Nueva"],
-        chapters: [], // Sin capítulos inicialmente
+        chapters: [],
         id: null
       };
 
