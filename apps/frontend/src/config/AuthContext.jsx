@@ -16,6 +16,7 @@ export const AuthProvider = ({ children }) => {
       return;
     }
 
+    // Only verify token if it exists
     verifyToken(token);
   }, []); // This will only run ONCE when the provider mounts
 
@@ -29,11 +30,13 @@ export const AuthProvider = ({ children }) => {
         const userData = await response.json();
         setUser(userData.data);
       } else {
+        // Token is invalid
         localStorage.removeItem('authToken');
         setUser(null);
       }
     } catch (error) {
       console.error('Error verifying token:', error);
+      // Network error or server down
       localStorage.removeItem('authToken');
       setUser(null);
     } finally {
