@@ -10,7 +10,7 @@ import CreateChapter from './pages/CreateChapter';
 import ReadChapter from './pages/ReadChapter';
 import ChapterEditor from './pages/ChapterEditor.jsx';
 import PublicStoryView from './pages/PublicStoryView.jsx';
-import useAuth from './config/AuthContext.js';
+import useAuth from './config/AuthContext.jsx';
 import './App.css';
 
 function App() {
