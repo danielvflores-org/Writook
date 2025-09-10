@@ -5,6 +5,7 @@ import LoginPage from './pages/LoginPage';
 import HomePage from './pages/HomePage';
 import EditorTest from './pages/EditorTest';
 import CreateStory from './pages/CreateStory';
+import MyWorks from './pages/MyWorks';
 import MyStoryDetails from './pages/MyStoryDetails';
 import CreateChapter from './pages/CreateChapter';
 import ReadChapter from './pages/ReadChapter';
@@ -44,6 +45,9 @@ function App() {
         } />
         <Route path="/create-story" element={
           user ? <CreateStory /> : <Navigate to="/" />
+        } />
+        <Route path="/myworks" element={
+          user ? <MyWorks /> : <Navigate to="/" />
         } />
         <Route path="/myworks/:storyId" element={
           user ? <MyStoryDetails /> : <Navigate to="/" />

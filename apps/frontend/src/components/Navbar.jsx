@@ -9,10 +9,9 @@ const Navbar = () => {
 
   const links = [
     { name: "Dashboard", href: "/home" },
-    { name: "Mis Historias", href: "/my-stories" },
+    { name: "Mis Historias", href: "/myworks" },
     { name: "Explorar", href: "/explore" },
     { name: "Crear Historia", href: "/create-story" },
-    { name: "🧪 Editor Test", href: "/editor-test" },
   ];
 
   const toggleMobileMenu = () => {
