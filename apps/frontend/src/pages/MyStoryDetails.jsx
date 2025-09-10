@@ -23,16 +23,23 @@ export default function MyStoryDetails() {
   const loadStory = async () => {
     try {
       setLoading(true);
+      console.log('🔍 Starting loadStory for storyId:', storyId);
       
       // First, try the ownership endpoint
+      const token = localStorage.getItem('authToken');
+      console.log('🔑 Using token:', token ? 'Token exists' : 'No token');
+      
       const ownershipResponse = await fetch(`http://localhost:8080/api/v1/stories/${storyId}/ownership`, {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+          'Authorization': `Bearer ${token}`
         }
       });
       
+      console.log('🏠 Ownership response status:', ownershipResponse.status);
+      
       if (ownershipResponse.ok) {
         const storyData = await ownershipResponse.json();
+        console.log('✅ Ownership check successful, story loaded:', storyData.title);
         setStory(storyData);
         setIsOwner(true);
         return;
@@ -40,41 +47,51 @@ export default function MyStoryDetails() {
       
       // If ownership fails, try the public endpoint and check ownership manually
       if (ownershipResponse.status === 403) {
-        console.log('Ownership check failed, trying public endpoint...');
+        console.log('❌ Ownership check failed (403), trying public endpoint...');
         const publicResponse = await fetch(`http://localhost:8080/api/v1/stories/${storyId}`);
         
         if (publicResponse.ok) {
           const storyData = await publicResponse.json();
           setStory(storyData);
+          console.log('📖 Public story loaded:', storyData.title);
+          console.log('👤 Current user:', user);
+          console.log('✍️ Story author:', storyData.author);
           
           // Check ownership manually using the current user
           if (user && storyData.author && 
               (storyData.author.username === user.username || 
                storyData.author.username === user.sub)) {
             setIsOwner(true);
-            console.log('Manual ownership check: User is owner');
+            console.log('✅ Manual ownership check: User is owner');
           } else {
-            console.log('Manual ownership check: User is not owner');
-            console.log('User:', user);
-            console.log('Story author:', storyData.author);
+            console.log('❌ Manual ownership check: User is not owner');
+            console.log('🔍 Comparison details:');
+            console.log('  - storyData.author.username:', storyData.author.username);
+            console.log('  - user.username:', user.username);
+            console.log('  - user.sub:', user.sub);
             // Redirect to public view since user doesn't own this story
             navigate(`/story/${storyId}`);
             return;
           }
         } else {
+          console.log('❌ Public endpoint failed:', publicResponse.status);
           throw new Error('Could not load story');
         }
       } else if (ownershipResponse.status === 404) {
+        console.log('❌ Story not found (404)');
         showNotification('Story not found', 'error');
         navigate('/home');
       } else if (ownershipResponse.status === 401) {
+        console.log('❌ Session expired (401)');
         showNotification('Your session has expired. Please log in again.', 'error');
         navigate('/home');
       } else {
+        console.log('❌ Unknown error:', ownershipResponse.status);
         showNotification('Error loading story', 'error');
         navigate('/home');
       }
     } catch (error) {
+      console.log('💥 Exception in loadStory:', error);
       showNotification('Connection error loading story', 'error');
       navigate('/home');
     } finally {
