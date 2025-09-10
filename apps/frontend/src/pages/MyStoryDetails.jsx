@@ -24,8 +24,7 @@ export default function MyStoryDetails() {
   const loadStory = async () => {
     try {
       setLoading(true);
-      
-      // First, try the ownership endpoint
+
       const token = localStorage.getItem('authToken');
       
       const ownershipResponse = await fetch(`http://localhost:8080/api/v1/stories/${storyId}/ownership`, {
@@ -41,7 +40,6 @@ export default function MyStoryDetails() {
         return;
       }
       
-      // If ownership fails, try the public endpoint and check ownership manually
       if (ownershipResponse.status === 403) {
         const publicResponse = await fetch(`http://localhost:8080/api/v1/stories/${storyId}`);
         
@@ -49,13 +47,11 @@ export default function MyStoryDetails() {
           const storyData = await publicResponse.json();
           setStory(storyData);
           
-          // Check ownership manually using the current user
           if (user && storyData.author && 
               (storyData.author.username === user.username || 
                storyData.author.username === user.sub)) {
             setIsOwner(true);
           } else {
-            // Redirect to public view since user doesn't own this story
             navigate(`/story/${storyId}`);
             return;
           }
