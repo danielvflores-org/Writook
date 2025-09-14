@@ -42,15 +42,19 @@ public class AuthService {
     }
 
     public User getCurrentUser() {
-    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    if (authentication == null || !authentication.isAuthenticated()) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return null;
+        }
+        Object principal = authentication.getPrincipal();
+        if (principal instanceof UserDetails userDetails) {
+            String usernameOrEmail = userDetails.getUsername();
+            User user = userService.findByUsername(usernameOrEmail);
+            if (user == null) {
+                user = userService.findByEmail(usernameOrEmail);
+            }
+            return user;
+        }
         return null;
-    }
-    Object principal = authentication.getPrincipal();
-    if (principal instanceof UserDetails userDetails) {
-        String username = userDetails.getUsername();
-        return userService.findByUsername(username);
-    }
-    return null;
     }
 }

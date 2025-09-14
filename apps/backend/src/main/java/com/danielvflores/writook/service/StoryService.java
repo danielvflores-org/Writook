@@ -3,14 +3,19 @@ package com.danielvflores.writook.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.danielvflores.writook.model.Chapter;
 import com.danielvflores.writook.model.Story;
+import com.danielvflores.writook.model.User;
 import com.danielvflores.writook.utility.TokenJWTUtility;
 
 @Service
 public class StoryService {
+    
+    @Autowired
+    private UserService userService;
     
     private final List<Story> stories = new ArrayList<>();
     private Long currentId = 1L; // FOR PROD DELETE THIS AND CHANGE TO USE NANOID LATER
@@ -65,17 +70,58 @@ public class StoryService {
             throw new RuntimeException("Historia no encontrada");
         }
         
-        // Check ownership with username extraction for legacy compatibility
-        String authorUsername = story.getAuthor().getUsername();
-        String authorUsernameClean = authorUsername;
-        if (authorUsername.contains("@")) {
-            authorUsernameClean = authorUsername.substring(0, authorUsername.indexOf("@"));
+        // Buscar el usuario autenticado por username o email
+        User authenticatedUser = userService.findByUsername(userFromToken);
+        if (authenticatedUser == null) {
+            authenticatedUser = userService.findByEmail(userFromToken);
         }
         
-        if (!authorUsernameClean.equals(userFromToken)) {
+        if (authenticatedUser == null) {
+            throw new RuntimeException("Usuario no encontrado");
+        }
+        
+        String authorUsername = story.getAuthor().getUsername();
+        String authorEmail = story.getAuthor().getEmail();
+        String authUserUsername = authenticatedUser.getUsername();
+        String authUserEmail = authenticatedUser.getEmail();
+
+        // Validación robusta de propiedad
+        boolean isOwner = false;
+        
+        // 1. Coincidencia directa de username
+        if (authUserUsername != null && authUserUsername.equals(authorUsername)) {
+            isOwner = true;
+        }
+        // 2. Coincidencia directa de email
+        else if (authUserEmail != null && authorEmail != null && authUserEmail.equals(authorEmail)) {
+            isOwner = true;
+        }
+        // 3. Username del usuario autenticado coincide con email del autor
+        else if (authorEmail != null && authUserUsername != null && authUserUsername.equals(authorEmail)) {
+            isOwner = true;
+        }
+        // 4. Email del usuario autenticado coincide con username del autor
+        else if (authUserEmail != null && authUserEmail.equals(authorUsername)) {
+            isOwner = true;
+        }
+        // 5. Parte local del email del autor coincide con username del usuario
+        else if (authorEmail != null && authorEmail.contains("@") && authUserUsername != null) {
+            String localPart = authorEmail.substring(0, authorEmail.indexOf("@"));
+            if (authUserUsername.equals(localPart)) {
+                isOwner = true;
+            }
+        }
+        // 6. Parte local del username del autor (si es email) coincide con username del usuario
+        else if (authorUsername != null && authorUsername.contains("@") && authUserUsername != null) {
+            String localPart = authorUsername.substring(0, authorUsername.indexOf("@"));
+            if (authUserUsername.equals(localPart)) {
+                isOwner = true;
+            }
+        }
+
+        if (!isOwner) {
             throw new RuntimeException("No tienes permiso para acceder a este espacio de trabajo");
         }
-        
         return story;
     }
 
@@ -169,17 +215,54 @@ public class StoryService {
             Story story = stories.get(i);
             if (story.getId().equals(storyId)) {
 
-                if (!story.getAuthor().getUsername().equals(userFromToken)) {
-                    throw new RuntimeException("No tienes permiso para editar esta historia");
+                // Buscar el usuario autenticado por username o email
+                User authenticatedUser = userService.findByUsername(userFromToken);
+                if (authenticatedUser == null) {
+                    authenticatedUser = userService.findByEmail(userFromToken);
                 }
                 
+                if (authenticatedUser == null) {
+                    throw new SecurityException("Usuario no encontrado");
+                }
+                
+                String authorUsername = story.getAuthor().getUsername();
+                String authorEmail = story.getAuthor().getEmail();
+                String authUserUsername = authenticatedUser.getUsername();
+                String authUserEmail = authenticatedUser.getEmail();
+
+                // Validación robusta de propiedad (igual que en getStoryWithOwnershipCheck)
+                boolean isOwner = false;
+                
+                if (authUserUsername.equals(authorUsername)) {
+                    isOwner = true;
+                } else if (authUserEmail != null && authorEmail != null && authUserEmail.equals(authorEmail)) {
+                    isOwner = true;
+                } else if (authorEmail != null && authUserUsername.equals(authorEmail)) {
+                    isOwner = true;
+                } else if (authUserEmail != null && authUserEmail.equals(authorUsername)) {
+                    isOwner = true;
+                } else if (authorEmail != null && authorEmail.contains("@")) {
+                    String localPart = authorEmail.substring(0, authorEmail.indexOf("@"));
+                    if (authUserUsername.equals(localPart)) {
+                        isOwner = true;
+                    }
+                } else if (authorUsername != null && authorUsername.contains("@")) {
+                    String localPart = authorUsername.substring(0, authorUsername.indexOf("@"));
+                    if (authUserUsername.equals(localPart)) {
+                        isOwner = true;
+                    }
+                }
+
+                if (!isOwner) {
+                    throw new SecurityException("No autorizado: solo el autor puede editar capítulos");
+                }
+
                 List<Chapter> chapters = new ArrayList<>(story.getChapters());
                 for (int j = 0; j < chapters.size(); j++) {
                     Chapter chapter = chapters.get(j);
 
                     if (chapter.getNumber() == chapterId.intValue()) {
 
-                        // FOR IMMUTABILITY, CREATE A NEW CHAPTER INSTANCE
                         Chapter updatedChapterImmutable = new Chapter(
                             updatedChapter.getTitle(),
                             updatedChapter.getContent(),
@@ -188,7 +271,6 @@ public class StoryService {
                         
                         chapters.set(j, updatedChapterImmutable);
                         
-                        // UPDATE FOR STORY AS WELL CREATE NEW OBJECT FOR IMMUTABILITY
                         Story updatedStory = new Story(
                             story.getTitle(),
                             story.getSynopsis(),
