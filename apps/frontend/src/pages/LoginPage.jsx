@@ -3,7 +3,7 @@ import { useState } from "react";
 import LoginForm from "../components/LoginForm";
 import useAuth from "../config/AuthContext.jsx";
 import Notification from "../components/Notification";
-import useNotification from "../hooks/useNotification";
+import { useNotification } from "../hooks/useNotification";
 
 function LoginPage() {
   const { login } = useAuth();

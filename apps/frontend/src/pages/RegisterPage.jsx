@@ -29,10 +29,11 @@ function RegisterPage() {
       const data = await response.json();
 
       if (response.ok) {
-        showNotification("Registration successful! Redirecting to login...", "success");
+        showNotification("Registration successful! Redirecting...", "success");
+        import('./LoginPage.jsx').catch(() => {});
         setTimeout(() => {
           navigate("/login");
-        }, 2000);
+        }, 1000);
       } else {
         const errorMessage = data.error || data.message || "Unknown error occurred";
         showNotification(`Registration failed: ${errorMessage}`, "error");
