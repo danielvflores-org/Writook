@@ -16,9 +16,13 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.danielvflores.writook.dto.AuthorDTO;
 import com.danielvflores.writook.model.Chapter;
 import com.danielvflores.writook.model.Story;
+import com.danielvflores.writook.model.User;
 import com.danielvflores.writook.service.StoryService;
+import com.danielvflores.writook.service.UserService;
+import com.danielvflores.writook.utility.TokenJWTUtility;
 
 @RestController
 @RequestMapping("/api/v1/stories")
@@ -28,6 +32,9 @@ public class StoryController {
     // THIS AUTOWIRED WILL BE CHANGE LATER WHEN I PRODUCE THE SERVICE
     @Autowired
     private StoryService storyService;
+
+    @Autowired
+    private UserService userService;
 
     @GetMapping
     public List<Story> getAllStories() {
@@ -57,8 +64,39 @@ public class StoryController {
     }
 
     @PostMapping
-    public Story createStory(@RequestBody Story story) {
-        return storyService.createStory(story);
+    public Story createStory(@RequestBody Story story, @RequestHeader("Authorization") String authHeader) {
+        String token = authHeader.substring(7); // Remove "Bearer "
+        String usernameFromToken = TokenJWTUtility.getUsernameFromToken(token);
+        
+        // Buscar el usuario autenticado
+        User authenticatedUser = userService.findByUsername(usernameFromToken);
+        if (authenticatedUser == null) {
+            authenticatedUser = userService.findByEmail(usernameFromToken);
+        }
+        
+        if (authenticatedUser == null) {
+            throw new RuntimeException("Usuario no encontrado");
+        }
+        
+        // Crear AuthorDTO con datos reales del usuario autenticado
+        AuthorDTO author = new AuthorDTO();
+        author.setUsername(authenticatedUser.getUsername());
+        author.setEmail(authenticatedUser.getEmail());
+        author.setDisplayName(story.getAuthor() != null ? story.getAuthor().getDisplayName() : authenticatedUser.getDisplayName());
+        author.setBio(story.getAuthor() != null ? story.getAuthor().getBio() : authenticatedUser.getBio());
+        author.setProfilePictureUrl(story.getAuthor() != null ? story.getAuthor().getProfilePictureUrl() : authenticatedUser.getProfilePictureUrl());
+
+        Story newStory = new Story(
+            story.getTitle(),
+            story.getSynopsis(),
+            author,
+            story.getRating(),
+            story.getGenres(),
+            story.getTags(),
+            story.getChapters(),
+            null
+        );
+        return storyService.createStory(newStory);
     }
 
     @PutMapping("/{id}")
