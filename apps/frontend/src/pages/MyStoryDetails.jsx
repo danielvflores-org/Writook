@@ -13,6 +13,9 @@ export default function MyStoryDetails() {
   const [loading, setLoading] = useState(true);
   const { notification, showNotification, hideNotification } = useNotification();
   const [isOwner, setIsOwner] = useState(false);
+  const [isEditingStory, setIsEditingStory] = useState(false);
+  const [editedStory, setEditedStory] = useState({});
+  const [isSynopsisExpanded, setIsSynopsisExpanded] = useState(false);
 
   useEffect(() => {
     loadStory();
@@ -134,6 +137,48 @@ export default function MyStoryDetails() {
     navigate(`/myworks/${storyId}/new-chapter`);
   };
 
+  const handleEditStory = () => {
+    setEditedStory({
+      title: story.title,
+      synopsis: story.synopsis,
+      genres: story.genres,
+      tags: story.tags,
+      rating: story.rating
+    });
+    setIsEditingStory(true);
+  };
+
+  const handleSaveStoryChanges = async () => {
+    try {
+      const token = localStorage.getItem('authToken');
+      
+      const response = await fetch(`http://localhost:8080/api/v1/stories/${storyId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(editedStory)
+      });
+
+      if (response.ok) {
+        const updatedStory = await response.json();
+        setStory(updatedStory);
+        setIsEditingStory(false);
+        showNotification('Story updated successfully! ✨', 'success');
+      } else {
+        throw new Error('Error updating story');
+      }
+    } catch (error) {
+      showNotification('Error updating story', 'error');
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditingStory(false);
+    setEditedStory({});
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
       <Notification
@@ -150,17 +195,119 @@ export default function MyStoryDetails() {
             ← Back to My Works
           </button>
           <div className="flex justify-between items-start">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-800 mb-2">{story.title}</h1>
-              <p className="text-gray-600">by {story.author?.displayName || story.author?.username || story.author}</p>
+            <div className="flex-1 mr-4">
+              {!isEditingStory ? (
+                <>
+                  <h1 className="text-3xl font-bold text-gray-800 mb-2">{story.title}</h1>
+                  <p className="text-gray-600 mb-4">by {story.author?.displayName || story.author?.username || story.author}</p>
+                  {story.synopsis && (
+                    <div className="text-gray-700 mb-4">
+                      <h3 className="font-semibold mb-2">Synopsis:</h3>
+                      {(() => {
+                        const synopsisLength = story.synopsis.length;
+                        const maxLength = 200;
+                        
+                        if (synopsisLength <= maxLength) {
+                          return <p className="text-sm leading-relaxed">{story.synopsis}</p>;
+                        }
+                        
+                        if (isSynopsisExpanded) {
+                          return (
+                            <div>
+                              <p className="text-sm leading-relaxed">{story.synopsis}</p>
+                              <button
+                                onClick={() => setIsSynopsisExpanded(false)}
+                                className="text-indigo-600 hover:text-indigo-800 text-xs mt-2 flex items-center space-x-1"
+                              >
+                                <span>Show less</span>
+                                <span>▲</span>
+                              </button>
+                            </div>
+                          );
+                        }
+                        
+                        return (
+                          <div>
+                            <p className="text-sm leading-relaxed">{story.synopsis.substring(0, maxLength)}...</p>
+                            <button
+                              onClick={() => setIsSynopsisExpanded(true)}
+                              className="text-indigo-600 hover:text-indigo-800 text-xs mt-2 flex items-center space-x-1"
+                            >
+                              <span>Read more</span>
+                              <span>▼</span>
+                            </button>
+                          </div>
+                        );
+                      })()}
+                    </div>
+                  )}
+                  {isOwner && (
+                    <button
+                      onClick={handleEditStory}
+                      className="text-indigo-600 hover:text-indigo-800 text-sm flex items-center space-x-1"
+                    >
+                      <span>✏️</span>
+                      <span>Edit Story Details</span>
+                    </button>
+                  )}
+                </>
+              ) : (
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
+                    <input
+                      type="text"
+                      value={editedStory.title}
+                      onChange={(e) => setEditedStory({...editedStory, title: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Synopsis</label>
+                    <textarea
+                      value={editedStory.synopsis || ''}
+                      onChange={(e) => setEditedStory({...editedStory, synopsis: e.target.value})}
+                      rows={4}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      placeholder="Brief description of your story..."
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Genres (comma-separated)</label>
+                    <input
+                      type="text"
+                      value={editedStory.genres ? editedStory.genres.join(', ') : ''}
+                      onChange={(e) => setEditedStory({...editedStory, genres: e.target.value.split(',').map(g => g.trim()).filter(g => g)})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      placeholder="Fantasy, Adventure, Romance..."
+                    />
+                  </div>
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={handleSaveStoryChanges}
+                      className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm"
+                    >
+                      Save Changes
+                    </button>
+                    <button
+                      onClick={handleCancelEdit}
+                      className="border border-gray-300 hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-lg text-sm"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
-            <button 
-              onClick={handleShareStory}
-              className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2"
-            >
-              <span>🔗</span>
-              <span>Share Story</span>
-            </button>
+            <div className="flex-shrink-0">
+              <button 
+                onClick={handleShareStory}
+                className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2"
+              >
+                <span>🔗</span>
+                <span>Share Story</span>
+              </button>
+            </div>
           </div>
         </div>
 
