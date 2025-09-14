@@ -100,8 +100,28 @@ public class StoryController {
     }
 
     @PutMapping("/{id}")
-    public Story updateStory(@PathVariable("id") Long id, @RequestBody Story updatedStory) {
-        return storyService.updateStory(id, updatedStory);
+    public Story updateStory(@PathVariable("id") Long id, @RequestBody Story updatedStory, @RequestHeader("Authorization") String authHeader) {
+        // Validar ownership antes de permitir edición
+        storyService.getStoryWithOwnershipCheck(id, authHeader);
+        
+        Story existingStory = storyService.getStoryById(id);
+        if (existingStory == null) {
+            throw new RuntimeException("Historia no encontrada");
+        }
+        
+        // Mantener el autor original y solo actualizar metadatos editables
+        Story storyToUpdate = new Story(
+            updatedStory.getTitle(),
+            updatedStory.getSynopsis(),
+            existingStory.getAuthor(), // Mantener autor original
+            updatedStory.getRating(),
+            updatedStory.getGenres(),
+            updatedStory.getTags(),
+            existingStory.getChapters(), // Mantener capítulos existentes
+            id
+        );
+        
+        return storyService.updateStory(id, storyToUpdate);
     }
 
     @DeleteMapping("/{id}")

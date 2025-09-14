@@ -13,6 +13,7 @@ export default function PublicStoryView() {
   const [loading, setLoading] = useState(true);
   const { notification, showNotification, hideNotification } = useNotification();
   const [isOwner, setIsOwner] = useState(false);
+  const [isSynopsisExpanded, setIsSynopsisExpanded] = useState(false);
 
   useEffect(() => {
     loadStory();
@@ -241,9 +242,48 @@ export default function PublicStoryView() {
               {/* Synopsis */}
               <div className="mb-8">
                 <h3 className="text-lg font-semibold text-gray-800 mb-4">Synopsis</h3>
-                <p className="text-gray-600 leading-relaxed">
-                  {story.synopsis}
-                </p>
+                {story.synopsis ? (
+                  <div className="text-gray-600 leading-relaxed">
+                    {(() => {
+                      const synopsisLength = story.synopsis.length;
+                      const maxLength = 300;
+                      
+                      if (synopsisLength <= maxLength) {
+                        return <p>{story.synopsis}</p>;
+                      }
+                      
+                      if (isSynopsisExpanded) {
+                        return (
+                          <div>
+                            <p>{story.synopsis}</p>
+                            <button
+                              onClick={() => setIsSynopsisExpanded(false)}
+                              className="text-indigo-600 hover:text-indigo-800 text-sm mt-2 flex items-center space-x-1"
+                            >
+                              <span>Show less</span>
+                              <span>▲</span>
+                            </button>
+                          </div>
+                        );
+                      }
+                      
+                      return (
+                        <div>
+                          <p>{story.synopsis.substring(0, maxLength)}...</p>
+                          <button
+                            onClick={() => setIsSynopsisExpanded(true)}
+                            className="text-indigo-600 hover:text-indigo-800 text-sm mt-2 flex items-center space-x-1"
+                          >
+                            <span>Read more</span>
+                            <span>▼</span>
+                          </button>
+                        </div>
+                      );
+                    })()}
+                  </div>
+                ) : (
+                  <p className="text-gray-400 italic">No synopsis available.</p>
+                )}
               </div>
 
               {/* Chapters */}
