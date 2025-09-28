@@ -2,6 +2,7 @@ import { useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Editor } from '@tinymce/tinymce-react';
 import Notification from '../components/Notification';
+import Layout from '../components/Layout';
 import { useNotification } from '../hooks/useNotification';
 
 export default function CreateChapter() {
@@ -76,7 +77,7 @@ export default function CreateChapter() {
 
     setLoading(true);
     try {
-      // GET Story to add Chapter
+      // GET Story to get next chapter number
       const storyResponse = await fetch(`http://localhost:8080/api/v1/stories/${storyId}`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('authToken')}`
@@ -94,30 +95,27 @@ export default function CreateChapter() {
         number: nextChapterNumber
       };
 
-      const updatedChapters = [...storyData.chapters, chapterData];
-      const updatedStory = {
-        ...storyData,
-        chapters: updatedChapters
-      };
-
-      const response = await fetch(`http://localhost:8080/api/v1/stories/${storyId}`, {
-        method: 'PUT',
+      // Use new POST endpoint to add chapter
+      const response = await fetch(`http://localhost:8080/api/v1/stories/${storyId}/chapters`, {
+        method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${localStorage.getItem('authToken')}`
         },
-        body: JSON.stringify(updatedStory)
+        body: JSON.stringify(chapterData)
       });
 
       if (response.ok) {
         showNotification('Chapter created successfully! 📚', 'success');
         navigate(`/myworks/${storyId}`);
       } else {
-        throw new Error('Server response error');
+        const errorData = await response.text();
+        throw new Error(errorData || 'Server response error');
       }
       
     } catch (error) {
-      showNotification('Error creating chapter. Please try again.', 'error');
+      console.error('Error creating chapter:', error);
+      showNotification(`Error creating chapter: ${error.message}`, 'error');
     } finally {
       setLoading(false);
     }
@@ -134,17 +132,16 @@ export default function CreateChapter() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+    <Layout>
       <Notification
         notification={notification}
         onClose={hideNotification}
       />
-      
-      <div className="container mx-auto px-4 py-8">
+      <div>
         <div className="mb-8">
           <button
             onClick={handleCancel}
-            className="flex items-center text-indigo-600 hover:text-indigo-800 mb-4"
+            className="flex items-center text-blue-600 hover:text-blue-800 mb-4"
           >
             ← Back to Story
           </button>
@@ -159,7 +156,7 @@ export default function CreateChapter() {
               placeholder="Chapter title..."
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full text-xl font-semibold border-b-2 border-gray-200 focus:border-indigo-500 outline-none pb-2"
+              className="w-full text-xl font-semibold border-b-2 border-gray-200 focus:border-blue-500 outline-none pb-2"
             />
           </div>
 
@@ -187,7 +184,7 @@ export default function CreateChapter() {
               <button
                 onClick={handleSave}
                 disabled={loading}
-                className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium disabled:opacity-50"
+                className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium disabled:opacity-50"
               >
                 {loading ? '⏳ Creating...' : '💾 Create Chapter'}
               </button>
@@ -195,6 +192,6 @@ export default function CreateChapter() {
           </div>
         </div>
       </div>
-    </div>
+    </Layout>
   );
 }
