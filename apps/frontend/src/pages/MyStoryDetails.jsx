@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import useAuth from '../config/AuthContext.jsx';
 import Notification from '../components/Notification';
+import EditStoryModal from '../components/EditStoryModal';
+import Layout from '../components/Layout';
 import { useNotification } from '../hooks/useNotification';
 
 export default function MyStoryDetails() {
@@ -13,8 +15,7 @@ export default function MyStoryDetails() {
   const [loading, setLoading] = useState(true);
   const { notification, showNotification, hideNotification } = useNotification();
   const [isOwner, setIsOwner] = useState(false);
-  const [isEditingStory, setIsEditingStory] = useState(false);
-  const [editedStory, setEditedStory] = useState({});
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isSynopsisExpanded, setIsSynopsisExpanded] = useState(false);
 
   useEffect(() => {
@@ -110,7 +111,7 @@ export default function MyStoryDetails() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Loading story...</p>
         </div>
       </div>
@@ -137,172 +138,51 @@ export default function MyStoryDetails() {
     navigate(`/myworks/${storyId}/new-chapter`);
   };
 
-  const handleEditStory = () => {
-    setEditedStory({
-      title: story.title,
-      synopsis: story.synopsis,
-      genres: story.genres,
-      tags: story.tags,
-      rating: story.rating
-    });
-    setIsEditingStory(true);
-  };
-
-  const handleSaveStoryChanges = async () => {
-    try {
-      const token = localStorage.getItem('authToken');
-      
-      const response = await fetch(`http://localhost:8080/api/v1/stories/${storyId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(editedStory)
-      });
-
-      if (response.ok) {
-        const updatedStory = await response.json();
-        setStory(updatedStory);
-        setIsEditingStory(false);
-        showNotification('Story updated successfully! ✨', 'success');
-      } else {
-        throw new Error('Error updating story');
-      }
-    } catch (error) {
-      showNotification('Error updating story', 'error');
-    }
-  };
-
-  const handleCancelEdit = () => {
-    setIsEditingStory(false);
-    setEditedStory({});
+  const handleStoryUpdate = (updatedStory) => {
+    setStory(updatedStory);
+    setIsEditModalOpen(false);
+    showNotification('Story updated successfully! ✨', 'success');
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+    <Layout>
       <Notification
         notification={notification}
         onClose={hideNotification}
       />
-      
-      <div className="container mx-auto px-4 py-8">
+      <div>
         <div className="mb-8">
           <button
             onClick={() => navigate('/myworks')}
-            className="flex items-center text-indigo-600 hover:text-indigo-800 mb-4"
+            className="flex items-center text-blue-600 hover:text-blue-800 mb-6 font-medium"
           >
-            ← Back to My Works
+            ← Back to home
           </button>
+          
           <div className="flex justify-between items-start">
-            <div className="flex-1 mr-4">
-              {!isEditingStory ? (
-                <>
-                  <h1 className="text-3xl font-bold text-gray-800 mb-2">{story.title}</h1>
-                  <p className="text-gray-600 mb-4">by {story.author?.displayName || story.author?.username || story.author}</p>
-                  {story.synopsis && (
-                    <div className="text-gray-700 mb-4">
-                      <h3 className="font-semibold mb-2">Synopsis:</h3>
-                      {(() => {
-                        const synopsisLength = story.synopsis.length;
-                        const maxLength = 200;
-                        
-                        if (synopsisLength <= maxLength) {
-                          return <p className="text-sm leading-relaxed">{story.synopsis}</p>;
-                        }
-                        
-                        if (isSynopsisExpanded) {
-                          return (
-                            <div>
-                              <p className="text-sm leading-relaxed">{story.synopsis}</p>
-                              <button
-                                onClick={() => setIsSynopsisExpanded(false)}
-                                className="text-indigo-600 hover:text-indigo-800 text-xs mt-2 flex items-center space-x-1"
-                              >
-                                <span>Show less</span>
-                                <span>▲</span>
-                              </button>
-                            </div>
-                          );
-                        }
-                        
-                        return (
-                          <div>
-                            <p className="text-sm leading-relaxed">{story.synopsis.substring(0, maxLength)}...</p>
-                            <button
-                              onClick={() => setIsSynopsisExpanded(true)}
-                              className="text-indigo-600 hover:text-indigo-800 text-xs mt-2 flex items-center space-x-1"
-                            >
-                              <span>Read more</span>
-                              <span>▼</span>
-                            </button>
-                          </div>
-                        );
-                      })()}
-                    </div>
-                  )}
-                  {isOwner && (
-                    <button
-                      onClick={handleEditStory}
-                      className="text-indigo-600 hover:text-indigo-800 text-sm flex items-center space-x-1"
-                    >
-                      <span>✏️</span>
-                      <span>Edit Story Details</span>
-                    </button>
-                  )}
-                </>
-              ) : (
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
-                    <input
-                      type="text"
-                      value={editedStory.title}
-                      onChange={(e) => setEditedStory({...editedStory, title: e.target.value})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Synopsis</label>
-                    <textarea
-                      value={editedStory.synopsis || ''}
-                      onChange={(e) => setEditedStory({...editedStory, synopsis: e.target.value})}
-                      rows={4}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                      placeholder="Brief description of your story..."
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Genres (comma-separated)</label>
-                    <input
-                      type="text"
-                      value={editedStory.genres ? editedStory.genres.join(', ') : ''}
-                      onChange={(e) => setEditedStory({...editedStory, genres: e.target.value.split(',').map(g => g.trim()).filter(g => g)})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                      placeholder="Fantasy, Adventure, Romance..."
-                    />
-                  </div>
-                  <div className="flex space-x-2">
-                    <button
-                      onClick={handleSaveStoryChanges}
-                      className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm"
-                    >
-                      Save Changes
-                    </button>
-                    <button
-                      onClick={handleCancelEdit}
-                      className="border border-gray-300 hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-lg text-sm"
-                    >
-                      Cancel
-                    </button>
-                  </div>
+            <div className="flex-1">
+              <div className="flex items-center space-x-3 mb-2">
+                <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                  <span className="text-white font-bold text-sm">📖</span>
                 </div>
-              )}
+                <h1 className="text-3xl font-bold text-gray-900">{story.title}</h1>
+              </div>
+              <p className="text-gray-600 mb-4">By {story.author?.displayName || story.author?.username || story.author}</p>
             </div>
-            <div className="flex-shrink-0">
+            
+            <div className="flex items-center space-x-3">
+              {isOwner && (
+                <button
+                  onClick={() => setIsEditModalOpen(true)}
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm flex items-center space-x-2 font-medium transition-colors"
+                >
+                  <span>📝</span>
+                  <span>Edit Story</span>
+                </button>
+              )}
               <button 
                 onClick={handleShareStory}
-                className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2"
+                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2 font-medium transition-colors"
               >
                 <span>🔗</span>
                 <span>Share Story</span>
@@ -311,40 +191,127 @@ export default function MyStoryDetails() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Story Cover and Metadata */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-xl shadow-lg p-6">
-              <div className="aspect-[3/4] bg-gradient-to-br from-indigo-200 to-blue-200 rounded-lg mb-4 flex items-center justify-center">
-                <div className="text-center text-gray-600">
-                  <div className="text-4xl mb-2">📖</div>
-                  <div className="text-sm">Story Cover</div>
+            <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+              <div className="aspect-[3/4] bg-gradient-to-br from-blue-400 to-purple-600 flex items-center justify-center relative">
+                <div className="text-center text-white">
+                  <div className="text-6xl mb-3">📖</div>
+                  <div className="text-sm font-medium">Preview</div>
                 </div>
               </div>
               
-              <div className="space-y-3 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Chapters:</span>
-                  <span className="font-medium">{story.chapters.length}</span>
+              <div className="p-6 space-y-4">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600 text-sm">Rating:</span>
+                  <div className="flex items-center space-x-1">
+                    <span className="text-yellow-400">⭐</span>
+                    <span className="font-medium text-sm">{story.rating || 0}</span>
+                  </div>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Views:</span>
-                  <span className="font-medium">{story.views || 0}</span>
+                
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600 text-sm">Chapters:</span>
+                  <span className="font-semibold text-lg">{story.chapters.length}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Genres:</span>
-                  <span className="font-medium">{story.genres.join(', ')}</span>
+                
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600 text-sm">Status:</span>
+                  <span className="text-green-600 bg-green-100 px-2 py-1 rounded-full text-xs font-medium">
+                    In Progress
+                  </span>
                 </div>
+                
+                {story.genres && story.genres.length > 0 && (
+                  <div className="space-y-2">
+                    <span className="text-gray-600 text-sm block">Genres</span>
+                    <div className="flex flex-wrap gap-1">
+                      {story.genres.map((genre, index) => (
+                        <span 
+                          key={index}
+                          className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium"
+                        >
+                          {genre}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
+                {story.tags && story.tags.length > 0 && (
+                  <div className="space-y-2">
+                    <span className="text-gray-600 text-sm block">Tags</span>
+                    <div className="flex flex-wrap gap-1">
+                      {story.tags.map((tag, index) => (
+                        <span 
+                          key={index}
+                          className="bg-gray-100 text-gray-700 px-2 py-1 rounded-full text-xs"
+                        >
+                          #{tag}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
 
-          <div className="lg:col-span-3">
-            <div className="bg-white rounded-xl shadow-lg p-8">
+          {/* Main Content Area */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Synopsis Section */}
+            {story.synopsis && (
+              <div className="bg-white rounded-xl shadow-lg p-6">
+                <h3 className="text-lg font-semibold text-gray-800 mb-3">Synopsis</h3>
+                <div className="text-gray-700 leading-relaxed">
+                  {(() => {
+                    const synopsisLength = story.synopsis.length;
+                    const maxLength = 300;
+                    
+                    if (synopsisLength <= maxLength) {
+                      return <p>{story.synopsis}</p>;
+                    }
+                    
+                    if (isSynopsisExpanded) {
+                      return (
+                        <div>
+                          <p>{story.synopsis}</p>
+                          <button
+                            onClick={() => setIsSynopsisExpanded(false)}
+                            className="text-blue-600 hover:text-blue-800 text-sm mt-3 flex items-center space-x-1"
+                          >
+                            <span>Show less</span>
+                            <span>▲</span>
+                          </button>
+                        </div>
+                      );
+                    }
+                    
+                    return (
+                      <div>
+                        <p>{story.synopsis.substring(0, maxLength)}...</p>
+                        <button
+                          onClick={() => setIsSynopsisExpanded(true)}
+                          className="text-blue-600 hover:text-blue-800 text-sm mt-3 flex items-center space-x-1"
+                        >
+                          <span>Read more</span>
+                          <span>▼</span>
+                        </button>
+                      </div>
+                    );
+                  })()}
+                </div>
+              </div>
+            )}
+
+            {/* Chapters Section */}
+            <div className="bg-white rounded-xl shadow-lg p-6">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-semibold text-gray-800">Chapters</h2>
                 <button
                   onClick={handleNewChapter}
-                  className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg"
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium text-sm transition-colors"
                 >
                   + New Chapter
                 </button>
@@ -357,41 +324,64 @@ export default function MyStoryDetails() {
                   <p className="text-sm mb-4">Add your first chapter so readers can enjoy your story.</p>
                   <button
                     onClick={handleNewChapter}
-                    className="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700"
+                    className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 font-medium transition-colors"
                   >
                     ✨ Write First Chapter
                   </button>
                 </div>
               ) : (
-                <div className="space-y-4">
+                <div className="space-y-3">
                   {story.chapters.map((chapter, index) => (
-                    <div key={index} className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50">
+                    <div key={index} className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors">
                       <div className="flex items-center justify-between">
-                        <div>
-                          <h4 
-                            className="font-medium text-gray-800 hover:text-indigo-600 cursor-pointer"
-                            onClick={() => handleReadChapter(chapter.number)}
-                          >
-                            Chapter {chapter.number}: {chapter.title}
-                          </h4>
-                          <p className="text-sm text-gray-500 mt-1">
-                            Last updated: {new Date().toLocaleDateString()}
-                          </p>
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-3">
+                            <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-medium text-sm">
+                              {chapter.number}
+                            </div>
+                            <div>
+                              <h4 
+                                className="font-medium text-gray-800 hover:text-blue-600 cursor-pointer transition-colors"
+                                onClick={() => handleReadChapter(chapter.number)}
+                              >
+                                {chapter.title}
+                              </h4>
+                              <div className="flex items-center space-x-4 text-xs text-gray-500 mt-1">
+                                <span>Published • Sep 27, 2025</span>
+                                <div className="flex items-center space-x-1">
+                                  <span>⭐</span>
+                                  <span>4</span>
+                                </div>
+                                <div className="flex items-center space-x-1">
+                                  <span>💬</span>
+                                  <span>0</span>
+                                </div>
+                                <div className="flex items-center space-x-1">
+                                  <span>👁</span>
+                                  <span>62</span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
                         </div>
                         <div className="flex items-center space-x-2">
                           <button
                             onClick={() => handleShareChapter(chapter.number)}
-                            className="text-blue-500 hover:text-blue-700 p-2"
+                            className="p-2 text-gray-400 hover:text-blue-600 transition-colors"
                             title="Share chapter"
                           >
-                            🔗
+                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                              <path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z"/>
+                            </svg>
                           </button>
                           <button
                             onClick={() => handleEditChapter(chapter.number)}
-                            className="text-gray-500 hover:text-gray-700 p-2"
+                            className="p-2 text-gray-400 hover:text-green-600 transition-colors"
                             title="Edit chapter"
                           >
-                            ✏️
+                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                              <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/>
+                            </svg>
                           </button>
                         </div>
                       </div>
@@ -403,6 +393,16 @@ export default function MyStoryDetails() {
           </div>
         </div>
       </div>
-    </div>
+
+      {/* Edit Story Modal */}
+      {isEditModalOpen && (
+        <EditStoryModal
+          story={story}
+          isOpen={isEditModalOpen}
+          onClose={() => setIsEditModalOpen(false)}
+          onUpdate={handleStoryUpdate}
+        />
+      )}
+    </Layout>
   );
 }

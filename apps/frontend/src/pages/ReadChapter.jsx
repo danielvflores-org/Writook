@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import useAuth from '../config/AuthContext.jsx';
 import Notification from '../components/Notification';
+import Layout from '../components/Layout';
 import { useNotification } from '../hooks/useNotification';
 
 export default function ReadChapter() {
@@ -66,7 +67,7 @@ export default function ReadChapter() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-indigo-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto"></div>
           <p className="mt-4 text-gray-600">Loading chapter...</p>
         </div>
       </div>
@@ -90,7 +91,7 @@ export default function ReadChapter() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <Layout>
       <Notification
         notification={notification}
         onClose={hideNotification}
@@ -123,7 +124,7 @@ export default function ReadChapter() {
               {isOwner && (
                 <button
                   onClick={handleEdit}
-                  className="text-gray-600 hover:text-indigo-600 p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                  className="text-gray-600 hover:text-blue-600 p-2 rounded-lg hover:bg-gray-100 transition-colors"
                   title="Edit chapter"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -140,12 +141,12 @@ export default function ReadChapter() {
       <div className="bg-white border-b">
         <div className="max-w-4xl mx-auto px-4 py-6">
           <div className="flex items-center space-x-4">
-            <div className="w-12 h-16 bg-gradient-to-br from-indigo-100 to-blue-100 rounded-lg flex items-center justify-center">
-              <span className="text-2xl">📖</span>
+            <div className="w-12 h-16 bg-gradient-to-br from-blue-400 to-purple-600 rounded-lg flex items-center justify-center">
+              <span className="text-2xl text-white">📖</span>
             </div>
             <div>
               <h1 className="text-2xl font-bold text-gray-800">{story.title}</h1>
-              <p className="text-lg font-medium text-indigo-600 mt-1">{chapter.title}</p>
+              <p className="text-lg font-medium text-blue-600 mt-1">{chapter.title}</p>
               <div className="flex items-center space-x-4 text-sm text-gray-600 mt-2">
                 <span>Chapter {chapterNumber}</span>
                 <span>•</span>
@@ -164,7 +165,7 @@ export default function ReadChapter() {
             <h2 className="text-3xl font-bold text-gray-800 mb-4">
               {chapter.title}
             </h2>
-            <div className="w-20 h-1 bg-gradient-to-r from-indigo-600 to-blue-600 rounded mx-auto"></div>
+            <div className="w-20 h-1 bg-gradient-to-r from-blue-600 to-purple-600 rounded mx-auto"></div>
           </div>
 
           {/* Chapter Content */}
@@ -207,6 +208,6 @@ export default function ReadChapter() {
           </div>
         </div>
       </div>
-    </div>
+    </Layout>
   );
 }
