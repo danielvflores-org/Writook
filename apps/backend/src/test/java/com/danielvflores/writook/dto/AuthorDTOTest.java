@@ -9,7 +9,7 @@ class AuthorDTOTest {
 
     @Test
     void testAuthorDTOCreationFromUser() {
-        User user = new User("danielvflores", 3L,"daniel@email.com", "hashPassword", "Daniel V. Flores", "A passionate writer.", "http://profile.url/image.jpg");
+        User user = new User("danielvflores", null, "daniel@email.com", "hashPassword", "Daniel V. Flores", "A passionate writer.", "http://profile.url/image.jpg");
         AuthorDTO dto = new AuthorDTO(user);
 
         assertEquals("danielvflores", dto.getUsername());

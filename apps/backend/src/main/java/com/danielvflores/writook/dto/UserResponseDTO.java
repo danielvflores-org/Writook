@@ -3,7 +3,7 @@ package com.danielvflores.writook.dto;
 import com.danielvflores.writook.model.User;
 
 public class UserResponseDTO {
-    private Long id;
+    private String id;
     private String username;
     private String email;
     private String displayName;
@@ -12,7 +12,7 @@ public class UserResponseDTO {
 
     public UserResponseDTO() {}
 
-    public UserResponseDTO(Long id, String username, String email, String displayName, String bio, String profilePictureUrl) {
+    public UserResponseDTO(String id, String username, String email, String displayName, String bio, String profilePictureUrl) {
         this.id = id;
         this.username = username;
         this.email = email;
@@ -31,8 +31,8 @@ public class UserResponseDTO {
     }
 
     // GETTERS AND SETTERS FOR ALL FIELDS THIS CLASS IS MUTABLE AND FLEXIBLE.
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
 
     public String getUsername() { return username; }
     public void setUsername(String username) { this.username = username; }

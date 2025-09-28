@@ -43,12 +43,12 @@ public class StoryController {
     }
 
     @GetMapping("/{id}")
-    public Story getStoryById(@PathVariable("id") Long id, @RequestHeader(value = "Authorization", required = false) String authHeader) {
+    public Story getStoryById(@PathVariable("id") String id, @RequestHeader(value = "Authorization", required = false) String authHeader) {
         return storyService.getStoryById(id, authHeader);
     }
 
     @GetMapping("/{id}/ownership")
-    public ResponseEntity<?> getStoryByIdWithOwnershipCheck(@PathVariable("id") Long id, @RequestHeader("Authorization") String authHeader) {
+    public ResponseEntity<?> getStoryByIdWithOwnershipCheck(@PathVariable("id") String id, @RequestHeader("Authorization") String authHeader) {
         try {
             Story story = storyService.getStoryWithOwnershipCheck(id, authHeader);
             return ResponseEntity.ok(story);
@@ -99,7 +99,7 @@ public class StoryController {
     }
 
     @PutMapping("/{id}")
-    public Story updateStory(@PathVariable("id") Long id, @RequestBody Story updatedStory, @RequestHeader("Authorization") String authHeader) {
+    public Story updateStory(@PathVariable("id") String id, @RequestBody Story updatedStory, @RequestHeader("Authorization") String authHeader) {
 
         storyService.getStoryWithOwnershipCheck(id, authHeader);
         
@@ -123,7 +123,7 @@ public class StoryController {
     }
 
     @PostMapping("/{storyId}/chapters")
-    public ResponseEntity<?> addChapter(@PathVariable("storyId") Long storyId, @RequestBody Chapter newChapter, @RequestHeader("Authorization") String authHeader) {
+    public ResponseEntity<?> addChapter(@PathVariable("storyId") String storyId, @RequestBody Chapter newChapter, @RequestHeader("Authorization") String authHeader) {
         try {
 
             storyService.getStoryWithOwnershipCheck(storyId, authHeader);
@@ -163,7 +163,7 @@ public class StoryController {
     }
 
     @DeleteMapping("/{id}")
-    public String deleteStory(@PathVariable("id") Long id) {
+    public String deleteStory(@PathVariable("id") String id) {
         boolean deleted = storyService.deleteStory(id);
         return deleted ? "Story with ID " + id + " deleted successfully" : "Story not found";
     }
@@ -174,7 +174,7 @@ public class StoryController {
     }
 
     @PutMapping("/{id}/metadata")
-    public ResponseEntity<?> updateStoryMetadata(@PathVariable("id") Long id, @RequestBody Story updatedStory, @RequestHeader("Authorization") String authHeader) {
+    public ResponseEntity<?> updateStoryMetadata(@PathVariable("id") String id, @RequestBody Story updatedStory, @RequestHeader("Authorization") String authHeader) {
         try {
             storyService.getStoryWithOwnershipCheck(id, authHeader);
             
@@ -210,7 +210,7 @@ public class StoryController {
     }
 
     @PutMapping("/{storyId}/edit/{chapterId}")
-    public ResponseEntity<?> updateChapter(@PathVariable("storyId") Long storyId, @PathVariable("chapterId") Long chapterId, @RequestBody Chapter updatedChapter, @RequestHeader("Authorization") String authHeader) {
+    public ResponseEntity<?> updateChapter(@PathVariable("storyId") String storyId, @PathVariable("chapterId") Long chapterId, @RequestBody Chapter updatedChapter, @RequestHeader("Authorization") String authHeader) {
         try {
             Chapter result = storyService.updateChapter(storyId, chapterId, updatedChapter, authHeader);
             return ResponseEntity.ok(result);

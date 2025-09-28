@@ -40,7 +40,7 @@ public class AuthCompleteTest {
 		request.setPassword("password123");
 		request.setDisplayName("Test User");
 
-		User mockUser = new User("testuser", 1L, "test@email.com", "password123", "Test User", "", "");
+		User mockUser = new User("testuser", null, "test@email.com", "password123", "Test User", "", "");
 		when(authService.register("testuser", "test@email.com", "password123", "Test User")).thenReturn(mockUser);
 
 		ObjectMapper objectMapper = new ObjectMapper();
@@ -50,6 +50,8 @@ public class AuthCompleteTest {
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(json))
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.username").value("testuser"));
+				.andExpect(jsonPath("$.success").value(true))
+				.andExpect(jsonPath("$.message").value("Usuario registrado exitosamente"))
+				.andExpect(jsonPath("$.data.username").value("testuser"));
 	}
 }
