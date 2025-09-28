@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Editor } from '@tinymce/tinymce-react';
 import useAuth from '../config/AuthContext.jsx';
 import Notification from '../components/Notification';
+import Layout from '../components/Layout';
 import { useNotification } from '../hooks/useNotification';
 
 export default function ChapterEditor() {
@@ -175,7 +176,7 @@ export default function ChapterEditor() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Loading chapter...</p>
         </div>
       </div>
@@ -183,17 +184,16 @@ export default function ChapterEditor() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+    <Layout>
       <Notification
         notification={notification}
         onClose={hideNotification}
       />
-      
-      <div className="container mx-auto px-4 py-8">
+      <div>
         <div className="mb-8">
           <button
             onClick={handleBack}
-            className="flex items-center text-indigo-600 hover:text-indigo-800 mb-4"
+            className="flex items-center text-blue-600 hover:text-blue-800 mb-4"
           >
             ← Back to "{storyTitle}"
           </button>
@@ -208,7 +208,7 @@ export default function ChapterEditor() {
               placeholder="Chapter title..."
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full text-xl font-semibold border-b-2 border-gray-200 focus:border-indigo-500 outline-none pb-2"
+              className="w-full text-xl font-semibold border-b-2 border-gray-200 focus:border-blue-500 outline-none pb-2"
             />
           </div>
 
@@ -228,13 +228,13 @@ export default function ChapterEditor() {
             </div>
             <button
               onClick={handleSave}
-              className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg font-medium"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium"
             >
               💾 Save Chapter
             </button>
           </div>
         </div>
       </div>
-    </div>
+    </Layout>
   );
 }

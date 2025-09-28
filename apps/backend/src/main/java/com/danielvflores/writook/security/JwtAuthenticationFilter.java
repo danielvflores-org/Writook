@@ -28,12 +28,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (StringUtils.hasText(token)) {
             boolean isValid = TokenJWTUtility.validateToken(token);
-            
             if (isValid) {
-                String username = TokenJWTUtility.getUsernameFromToken(token);
-                
-                User user = userService.findByUsername(username);
-
+                String usernameOrEmail = TokenJWTUtility.getUsernameFromToken(token);
+                User user = userService.findByUsername(usernameOrEmail);
+                if (user == null) {
+                    user = userService.findByEmail(usernameOrEmail);
+                }
                 if (user != null) {
                     org.springframework.security.core.userdetails.User userDetails = 
                         new org.springframework.security.core.userdetails.User(
@@ -41,7 +41,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                             user.getPassword(), 
                             java.util.Collections.emptyList()
                         );
-                    
                     UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                         userDetails, null, java.util.Collections.emptyList());
                     authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));

@@ -1,5 +1,6 @@
 package com.danielvflores.writook.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,9 +17,13 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.danielvflores.writook.dto.AuthorDTO;
 import com.danielvflores.writook.model.Chapter;
 import com.danielvflores.writook.model.Story;
+import com.danielvflores.writook.model.User;
 import com.danielvflores.writook.service.StoryService;
+import com.danielvflores.writook.service.UserService;
+import com.danielvflores.writook.utility.TokenJWTUtility;
 
 @RestController
 @RequestMapping("/api/v1/stories")
@@ -28,6 +33,9 @@ public class StoryController {
     // THIS AUTOWIRED WILL BE CHANGE LATER WHEN I PRODUCE THE SERVICE
     @Autowired
     private StoryService storyService;
+
+    @Autowired
+    private UserService userService;
 
     @GetMapping
     public List<Story> getAllStories() {
@@ -57,13 +65,101 @@ public class StoryController {
     }
 
     @PostMapping
-    public Story createStory(@RequestBody Story story) {
-        return storyService.createStory(story);
+    public Story createStory(@RequestBody Story story, @RequestHeader("Authorization") String authHeader) {
+        String token = authHeader.substring(7); // Remove "Bearer "
+        String usernameFromToken = TokenJWTUtility.getUsernameFromToken(token);
+        
+        User authenticatedUser = userService.findByUsername(usernameFromToken);
+        if (authenticatedUser == null) {
+            authenticatedUser = userService.findByEmail(usernameFromToken);
+        }
+        
+        if (authenticatedUser == null) {
+            throw new RuntimeException("Usuario no encontrado");
+        }
+        
+        AuthorDTO author = new AuthorDTO();
+        author.setUsername(authenticatedUser.getUsername());
+        author.setEmail(authenticatedUser.getEmail());
+        author.setDisplayName(story.getAuthor() != null ? story.getAuthor().getDisplayName() : authenticatedUser.getDisplayName());
+        author.setBio(story.getAuthor() != null ? story.getAuthor().getBio() : authenticatedUser.getBio());
+        author.setProfilePictureUrl(story.getAuthor() != null ? story.getAuthor().getProfilePictureUrl() : authenticatedUser.getProfilePictureUrl());
+
+        Story newStory = new Story(
+            story.getTitle(),
+            story.getSynopsis(),
+            author,
+            story.getRating(),
+            story.getGenres(),
+            story.getTags(),
+            story.getChapters(),
+            null
+        );
+        return storyService.createStory(newStory);
     }
 
     @PutMapping("/{id}")
-    public Story updateStory(@PathVariable("id") Long id, @RequestBody Story updatedStory) {
-        return storyService.updateStory(id, updatedStory);
+    public Story updateStory(@PathVariable("id") Long id, @RequestBody Story updatedStory, @RequestHeader("Authorization") String authHeader) {
+
+        storyService.getStoryWithOwnershipCheck(id, authHeader);
+        
+        Story existingStory = storyService.getStoryById(id);
+        if (existingStory == null) {
+            throw new RuntimeException("Historia no encontrada");
+        }
+        
+        Story storyToUpdate = new Story(
+            updatedStory.getTitle(),
+            updatedStory.getSynopsis(),
+            existingStory.getAuthor(),
+            updatedStory.getRating(),
+            updatedStory.getGenres(),
+            updatedStory.getTags(),
+            updatedStory.getChapters(),
+            id
+        );
+        
+        return storyService.updateStory(id, storyToUpdate);
+    }
+
+    @PostMapping("/{storyId}/chapters")
+    public ResponseEntity<?> addChapter(@PathVariable("storyId") Long storyId, @RequestBody Chapter newChapter, @RequestHeader("Authorization") String authHeader) {
+        try {
+
+            storyService.getStoryWithOwnershipCheck(storyId, authHeader);
+            
+            Story story = storyService.getStoryById(storyId);
+            if (story == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Historia no encontrada");
+            }
+
+            List<Chapter> chapters = new ArrayList<>(story.getChapters());
+            chapters.add(newChapter);
+
+            Story updatedStory = new Story(
+                story.getTitle(),
+                story.getSynopsis(),
+                story.getAuthor(),
+                story.getRating(),
+                story.getGenres(),
+                story.getTags(),
+                chapters,
+                storyId
+            );
+
+            Story result = storyService.updateStory(storyId, updatedStory);
+            return ResponseEntity.ok(result);
+
+        } catch (RuntimeException e) {
+            String message = e.getMessage();
+            if (message.contains("Token") || message.contains("permiso")) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(message);
+            } else if (message.contains("no encontrada")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(message);
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(message);
+            }
+        }
     }
 
     @DeleteMapping("/{id}")
@@ -75,6 +171,42 @@ public class StoryController {
     @GetMapping("/author/{username}")
     public List<Story> getStoriesByAuthorUsername(@PathVariable("username") String username) {
         return storyService.getStoriesByAuthorUsername(username);
+    }
+
+    @PutMapping("/{id}/metadata")
+    public ResponseEntity<?> updateStoryMetadata(@PathVariable("id") Long id, @RequestBody Story updatedStory, @RequestHeader("Authorization") String authHeader) {
+        try {
+            storyService.getStoryWithOwnershipCheck(id, authHeader);
+            
+            Story existingStory = storyService.getStoryById(id);
+            if (existingStory == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Historia no encontrada");
+            }
+            
+            Story storyToUpdate = new Story(
+                updatedStory.getTitle(),
+                updatedStory.getSynopsis(),
+                existingStory.getAuthor(),
+                updatedStory.getRating(),
+                updatedStory.getGenres(),
+                updatedStory.getTags(),
+                existingStory.getChapters(),
+                id
+            );
+            
+            Story result = storyService.updateStory(id, storyToUpdate);
+            return ResponseEntity.ok(result);
+            
+        } catch (RuntimeException e) {
+            String message = e.getMessage();
+            if (message.contains("Token") || message.contains("permiso")) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(message);
+            } else if (message.contains("no encontrada")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(message);
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(message);
+            }
+        }
     }
 
     @PutMapping("/{storyId}/edit/{chapterId}")
