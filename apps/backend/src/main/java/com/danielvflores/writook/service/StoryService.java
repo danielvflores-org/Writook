@@ -18,7 +18,6 @@ public class StoryService {
     private UserService userService;
     
     private final List<Story> stories = new ArrayList<>();
-    private Long currentId = 1L; // FOR PROD DELETE THIS AND CHANGE TO USE NANOID LATER
     // TODO: Integrate with a real database instead of using in-memory list
 
     public StoryService() {
@@ -28,14 +27,14 @@ public class StoryService {
         return stories;
     }
 
-    public Story getStoryById(Long id) {
+    public Story getStoryById(String id) {
         return stories.stream()
                 .filter(story -> story.getId().equals(id))
                 .findFirst()
                 .orElse(null);
     }
 
-    public Story getStoryById(Long id, String authHeader) {
+    public Story getStoryById(String id, String authHeader) {
         Story story = stories.stream()
                 .filter(s -> s.getId().equals(id))
                 .findFirst()
@@ -48,8 +47,22 @@ public class StoryService {
         return story;
     }
 
-    public Story getStoryWithOwnershipCheck(Long id, String authHeader) {
+    public Story getStoryWithOwnershipCheck(String id, String authHeader) {
+        User authenticatedUser = validateTokenAndGetUser(authHeader);
+        
+        Story story = getStoryById(id);
+        if (story == null) {
+            throw new RuntimeException("Historia no encontrada");
+        }
+        
+        if (!isStoryOwner(story, authenticatedUser)) {
+            throw new RuntimeException("No tienes permiso para acceder a este espacio de trabajo");
+        }
+        
+        return story;
+    }
 
+    private User validateTokenAndGetUser(String authHeader) {
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             throw new RuntimeException("Token de autorización requerido");
         }
@@ -65,12 +78,6 @@ public class StoryService {
             throw new RuntimeException("No se pudo extraer usuario del token");
         }
         
-        Story story = getStoryById(id);
-        if (story == null) {
-            throw new RuntimeException("Historia no encontrada");
-        }
-        
-        // Buscar el usuario autenticado por username o email
         User authenticatedUser = userService.findByUsername(userFromToken);
         if (authenticatedUser == null) {
             authenticatedUser = userService.findByEmail(userFromToken);
@@ -80,49 +87,46 @@ public class StoryService {
             throw new RuntimeException("Usuario no encontrado");
         }
         
+        return authenticatedUser;
+    }
+
+    private boolean isStoryOwner(Story story, User authenticatedUser) {
         String authorUsername = story.getAuthor().getUsername();
         String authorEmail = story.getAuthor().getEmail();
         String authUserUsername = authenticatedUser.getUsername();
         String authUserEmail = authenticatedUser.getEmail();
 
-        // Validación robusta de propiedad
-        boolean isOwner = false;
-        
-        // 1. Coincidencia directa de username
         if (authUserUsername != null && authUserUsername.equals(authorUsername)) {
-            isOwner = true;
+            return true;
         }
-        // 2. Coincidencia directa de email
-        else if (authUserEmail != null && authorEmail != null && authUserEmail.equals(authorEmail)) {
-            isOwner = true;
+
+        if (authUserEmail != null && authorEmail != null && authUserEmail.equals(authorEmail)) {
+            return true;
         }
-        // 3. Username del usuario autenticado coincide con email del autor
-        else if (authorEmail != null && authUserUsername != null && authUserUsername.equals(authorEmail)) {
-            isOwner = true;
+        
+        if (authorEmail != null && authUserUsername != null && authUserUsername.equals(authorEmail)) {
+            return true;
         }
-        // 4. Email del usuario autenticado coincide con username del autor
-        else if (authUserEmail != null && authUserEmail.equals(authorUsername)) {
-            isOwner = true;
+
+        if (authUserEmail != null && authUserEmail.equals(authorUsername)) {
+            return true;
         }
-        // 5. Parte local del email del autor coincide con username del usuario
-        else if (authorEmail != null && authorEmail.contains("@") && authUserUsername != null) {
+
+        if (authorEmail != null && authorEmail.contains("@") && authUserUsername != null) {
             String localPart = authorEmail.substring(0, authorEmail.indexOf("@"));
             if (authUserUsername.equals(localPart)) {
-                isOwner = true;
-            }
-        }
-        // 6. Parte local del username del autor (si es email) coincide con username del usuario
-        else if (authorUsername != null && authorUsername.contains("@") && authUserUsername != null) {
-            String localPart = authorUsername.substring(0, authorUsername.indexOf("@"));
-            if (authUserUsername.equals(localPart)) {
-                isOwner = true;
+                return true;
             }
         }
 
-        if (!isOwner) {
-            throw new RuntimeException("No tienes permiso para acceder a este espacio de trabajo");
+        if (authorUsername != null && authorUsername.contains("@") && authUserUsername != null) {
+            String localPart = authorUsername.substring(0, authorUsername.indexOf("@"));
+            if (authUserUsername.equals(localPart)) {
+                return true;
+            }
         }
-        return story;
+
+        return false;
     }
 
     public Story createStory(Story story) {
@@ -134,13 +138,13 @@ public class StoryService {
             story.getGenres(),
             story.getTags(),
             story.getChapters(),
-            currentId++
+            null
         );
         stories.add(storyWithId);
         return storyWithId;
     }
 
-    public Story updateStory(Long id, Story updatedStory) {
+    public Story updateStory(String id, Story updatedStory) {
         for (int i = 0; i < stories.size(); i++) {
             if (stories.get(i).getId().equals(id)) {
                 Story updatedStoryWithId = new Story(
@@ -160,7 +164,7 @@ public class StoryService {
         return null;
     }
 
-    public boolean deleteStory(Long id) {
+    public boolean deleteStory(String id) {
         return stories.removeIf(story -> story.getId().equals(id));
     }
 
@@ -194,66 +198,14 @@ public class StoryService {
         return result;
     }
 
-    public Chapter updateChapter(Long storyId, Long chapterId, Chapter updatedChapter, String authHeader) {
-
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            throw new RuntimeException("Token de autorización requerido");
-        }
-
-        String token = authHeader.substring(7);
-        
-        if (!TokenJWTUtility.validateToken(token)) {
-            throw new RuntimeException("Token inválido");
-        }
-        
-        String userFromToken = TokenJWTUtility.getUsernameFromToken(token);
-        if (userFromToken == null) {
-            throw new RuntimeException("No se pudo extraer usuario del token");
-        }
+    public Chapter updateChapter(String storyId, Long chapterId, Chapter updatedChapter, String authHeader) {
+        User authenticatedUser = validateTokenAndGetUser(authHeader);
         
         for (int i = 0; i < stories.size(); i++) {
             Story story = stories.get(i);
             if (story.getId().equals(storyId)) {
-
-                // Buscar el usuario autenticado por username o email
-                User authenticatedUser = userService.findByUsername(userFromToken);
-                if (authenticatedUser == null) {
-                    authenticatedUser = userService.findByEmail(userFromToken);
-                }
                 
-                if (authenticatedUser == null) {
-                    throw new SecurityException("Usuario no encontrado");
-                }
-                
-                String authorUsername = story.getAuthor().getUsername();
-                String authorEmail = story.getAuthor().getEmail();
-                String authUserUsername = authenticatedUser.getUsername();
-                String authUserEmail = authenticatedUser.getEmail();
-
-                // Validación robusta de propiedad (igual que en getStoryWithOwnershipCheck)
-                boolean isOwner = false;
-                
-                if (authUserUsername.equals(authorUsername)) {
-                    isOwner = true;
-                } else if (authUserEmail != null && authorEmail != null && authUserEmail.equals(authorEmail)) {
-                    isOwner = true;
-                } else if (authorEmail != null && authUserUsername.equals(authorEmail)) {
-                    isOwner = true;
-                } else if (authUserEmail != null && authUserEmail.equals(authorUsername)) {
-                    isOwner = true;
-                } else if (authorEmail != null && authorEmail.contains("@")) {
-                    String localPart = authorEmail.substring(0, authorEmail.indexOf("@"));
-                    if (authUserUsername.equals(localPart)) {
-                        isOwner = true;
-                    }
-                } else if (authorUsername != null && authorUsername.contains("@")) {
-                    String localPart = authorUsername.substring(0, authorUsername.indexOf("@"));
-                    if (authUserUsername.equals(localPart)) {
-                        isOwner = true;
-                    }
-                }
-
-                if (!isOwner) {
+                if (!isStoryOwner(story, authenticatedUser)) {
                     throw new SecurityException("No autorizado: solo el autor puede editar capítulos");
                 }
 

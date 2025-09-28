@@ -11,7 +11,6 @@ import com.danielvflores.writook.model.User;
 public class UserService {
 
     private final List<User> users = new ArrayList<>();
-    private Long currentId = 1L;
 
     public UserService() {
     }
@@ -20,7 +19,7 @@ public class UserService {
         return users;
     }
     
-    public User getUserById(Long id) {
+    public User getUserById(String id) {
         return users.stream()
             .filter(user -> user.getId().equals(id))
             .findFirst()
@@ -28,12 +27,11 @@ public class UserService {
     }
     
     public User createUser(User user) {
-        user.setId(currentId++);
         users.add(user);
         return user;
     }
     
-    public User updateUser(Long id, User updatedUser) {
+    public User updateUser(String id, User updatedUser) {
         for (int i = 0; i < users.size(); i++) {
             if (users.get(i).getId().equals(id)) {
                 updatedUser.setId(id);
@@ -44,11 +42,11 @@ public class UserService {
         return null;
     }
     
-    public boolean deleteUser(Long id) {
+    public boolean deleteUser(String id) {
         return users.removeIf(user -> user.getId().equals(id));
     }
     
-    public User getUserProfile(Long id) {
+    public User getUserProfile(String id) {
         return getUserById(id);
     }
 

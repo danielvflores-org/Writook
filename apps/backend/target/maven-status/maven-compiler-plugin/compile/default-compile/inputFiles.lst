@@ -12,7 +12,6 @@ C:\Users\Daniel\OneDrive\Programming\GitHub Projects\Writook\apps\backend\src\ma
 C:\Users\Daniel\OneDrive\Programming\GitHub Projects\Writook\apps\backend\src\main\java\com\danielvflores\writook\controller\AuthController.java
 C:\Users\Daniel\OneDrive\Programming\GitHub Projects\Writook\apps\backend\src\main\java\com\danielvflores\writook\dto\AuthorDTO.java
 C:\Users\Daniel\OneDrive\Programming\GitHub Projects\Writook\apps\backend\src\main\java\com\danielvflores\writook\utility\TokenJWTUtility.java
-C:\Users\Daniel\OneDrive\Programming\GitHub Projects\Writook\apps\backend\src\main\java\com\danielvflores\writook\controller\ShowMyTestStory.java
 C:\Users\Daniel\OneDrive\Programming\GitHub Projects\Writook\apps\backend\src\main\java\com\danielvflores\writook\model\Story.java
 C:\Users\Daniel\OneDrive\Programming\GitHub Projects\Writook\apps\backend\src\main\java\com\danielvflores\writook\service\StoryService.java
 C:\Users\Daniel\OneDrive\Programming\GitHub Projects\Writook\apps\backend\src\main\java\com\danielvflores\writook\dto\LoginRequestDTO.java

@@ -38,7 +38,7 @@ public class RegisterUserTest {
         String password = "password";
         String displayName = "New User";
 
-        User expectedUser = new User(username, 1L, email, password, displayName, "", "");
+        User expectedUser = new User(username, null, email, password, displayName, "", "");
         
         when(userService.getAllUsers()).thenReturn(new ArrayList<>());
         when(userService.createUser(org.mockito.ArgumentMatchers.any(User.class))).thenReturn(expectedUser);
@@ -61,7 +61,7 @@ public class RegisterUserTest {
         String password = "password";
         String displayName = "Existing User";
 
-        User existingUser = new User(username, 1L, email, password, displayName, "", "");
+        User existingUser = new User(username, null, email, password, displayName, "", "");
         when(userService.getAllUsers()).thenReturn(Collections.singletonList(existingUser));
 
         // Act & Assert
