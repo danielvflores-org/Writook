@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useAuth from '../config/AuthContext.jsx';
 import Notification from '../components/Notification';
+import Layout from '../components/Layout';
 import { useNotification } from '../hooks/useNotification';
 
 export default function CreateStory() {
@@ -115,13 +116,12 @@ export default function CreateStory() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+    <Layout>
       <Notification
         notification={notification}
         onClose={hideNotification}
       />
-      
-      <div className="container mx-auto px-4 py-8">
+      <div>
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-800 mb-2">Create New Story</h1>
           <p className="text-gray-600">Share your imagination with the world</p>
@@ -138,7 +138,7 @@ export default function CreateStory() {
               value={formData.title}
               onChange={handleInputChange}
               placeholder="e.g. The Lost Kingdom of Dragons"
-              className="w-full text-xl font-semibold border-2 border-gray-200 rounded-lg px-4 py-3 focus:border-indigo-500 outline-none"
+              className="w-full text-xl font-semibold border-2 border-gray-200 rounded-lg px-4 py-3 focus:border-blue-500 outline-none"
               maxLength="100"
             />
             <div className="text-xs text-gray-500 mt-1">
@@ -155,7 +155,7 @@ export default function CreateStory() {
               value={formData.synopsis}
               onChange={handleInputChange}
               placeholder="Describe what your story is about. What adventures await your readers?"
-              className="w-full h-32 border-2 border-gray-200 rounded-lg px-4 py-3 focus:border-indigo-500 outline-none resize-none"
+              className="w-full h-32 border-2 border-gray-200 rounded-lg px-4 py-3 focus:border-blue-500 outline-none resize-none"
               maxLength="500"
             />
             <div className="text-xs text-gray-500 mt-1">
@@ -176,7 +176,7 @@ export default function CreateStory() {
                   disabled={!formData.genres.includes(genre) && formData.genres.length >= 3}
                   className={`p-3 rounded-lg text-sm font-medium transition-all ${
                     formData.genres.includes(genre)
-                      ? 'bg-indigo-600 text-white'
+                      ? 'bg-blue-600 text-white'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   } ${(!formData.genres.includes(genre) && formData.genres.length >= 3) ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
@@ -197,7 +197,7 @@ export default function CreateStory() {
               type="text"
               onChange={handleTagsChange}
               placeholder="adventure, magic, friendship (separate with commas)"
-              className="w-full border-2 border-gray-200 rounded-lg px-4 py-3 focus:border-indigo-500 outline-none"
+              className="w-full border-2 border-gray-200 rounded-lg px-4 py-3 focus:border-blue-500 outline-none"
             />
             <div className="text-xs text-gray-500 mt-1">
               Separate tags with commas
@@ -215,13 +215,13 @@ export default function CreateStory() {
             <button
               type="submit"
               disabled={loading}
-              className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium disabled:opacity-50"
+              className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium disabled:opacity-50"
             >
               {loading ? '⏳ Creating...' : '📚 Create Story'}
             </button>
           </div>
         </form>
       </div>
-    </div>
+    </Layout>
   );
 }

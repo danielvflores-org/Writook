@@ -28,7 +28,7 @@ const Navbar = () => {
       <div className="max-w-screen-xl mx-auto px-6 py-4 flex justify-between items-center">
         {/* Logo/Brand */}
         <Link to="/home" className="flex items-center space-x-2">
-          <div className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+          <div className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
             Writook
           </div>
         </Link>
@@ -39,7 +39,7 @@ const Navbar = () => {
             <li key={index} className="nav-link-fade">
               <Link 
                 to={link.href}
-                className="hover:text-purple-600 transition-colors duration-200 px-2 py-1"
+                className="hover:text-blue-600 transition-colors duration-200 px-2 py-1"
               >
                 {link.name}
               </Link>
@@ -66,10 +66,10 @@ const Navbar = () => {
               <img 
                 src={user.profilePictureUrl} 
                 alt="Profile"
-                className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover border-2 border-purple-200"
+                className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover border-2 border-blue-200"
               />
             ) : (
-              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold text-sm">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 flex items-center justify-center text-white font-bold text-sm">
                 {(user?.displayName || user?.username || 'U').charAt(0).toUpperCase()}
               </div>
             )}
@@ -111,7 +111,7 @@ const Navbar = () => {
             <li key={index}>
               <Link 
                 to={link.href}
-                className="block py-3 px-4 hover:bg-gray-50 rounded-md transition-colors duration-200"
+                className="block py-3 px-4 hover:bg-blue-50 rounded-md transition-colors duration-200"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 {link.name}
