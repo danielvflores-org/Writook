@@ -1,9 +1,12 @@
 package com.danielvflores.writook.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.danielvflores.writook.model.User;
@@ -14,13 +17,27 @@ public class AuthService {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
+
     // Basicall Logic for Auth Provisionally - without hashing method for passwords
     public User login(String usernameOrEmail, String password) {
         User user = userService.getAllUsers().stream()
             .filter(u -> u.getUsername().equals(usernameOrEmail) || u.getEmail().equals(usernameOrEmail))
             .findFirst()
             .orElse(null);
-        if (user != null && user.getPassword().equals(password)) {
+        boolean matches = false;
+        if (user != null) {
+            try {
+                matches = passwordEncoder.matches(password, user.getPassword());
+            } catch (Exception ex) {
+                logger.warn("Error al comparar contraseñas para usuario {}: {}", usernameOrEmail, ex.getMessage());
+            }
+        }
+        logger.info("Login attempt for {}: foundUser={}, storedHashPresent={}, matches={}", usernameOrEmail, user != null, user != null && user.getPassword() != null, matches);
+        if (user != null && matches) {
             return user;
         }
         return null;
@@ -31,9 +48,12 @@ public class AuthService {
             throw new RuntimeException("User already exists");
         }
         
-        // Create user WITHOUT hashing password (provisional)
-        User newUser = new User(username, null, email, password, displayName, "", "");
-        return userService.createUser(newUser);
+        // Hash password before storing
+        String hashed = passwordEncoder.encode(password);
+        // Create user with generated id (User constructor generates UUID if id==null)
+        User newUser = new User(username, null, email, hashed, displayName, "", null);
+        userService.createUser(newUser);
+        return newUser;
     }
     
     private boolean userExists(String username) {

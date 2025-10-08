@@ -1,0 +1,16 @@
+-------------------------------------------------------------------------------
+Test set: com.danielvflores.writook.controller.AuthCompleteTest
+-------------------------------------------------------------------------------
+Tests run: 1, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 1.653 s <<< FAILURE! -- in com.danielvflores.writook.controller.AuthCompleteTest
+com.danielvflores.writook.controller.AuthCompleteTest.testRegister -- Time elapsed: 0.237 s <<< FAILURE!
+java.lang.AssertionError: No value at JSON path "$.username"
+	at org.springframework.test.util.JsonPathExpectationsHelper.evaluateJsonPath(JsonPathExpectationsHelper.java:350)
+	at org.springframework.test.util.JsonPathExpectationsHelper.assertValue(JsonPathExpectationsHelper.java:148)
+	at org.springframework.test.web.servlet.result.JsonPathResultMatchers.lambda$value$2(JsonPathResultMatchers.java:111)
+	at org.springframework.test.web.servlet.MockMvc$1.andExpect(MockMvc.java:212)
+	at com.danielvflores.writook.controller.AuthCompleteTest.testRegister(AuthCompleteTest.java:53)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+Caused by: com.jayway.jsonpath.PathNotFoundException: No results for path: $['username']
+

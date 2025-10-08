@@ -12,7 +12,7 @@ class StoryTest {
 
     @Test
     void testStoryCreation() {
-        User user = new User("danielvflores", 2L,"daniel@email.com", "hashPassword", "Daniel V. Flores", "A passionate writer.", "http://profile.url/image.jpg");
+        User user = new User("danielvflores", null, "daniel@email.com", "hashPassword", "Daniel V. Flores", "A passionate writer.", "http://profile.url/image.jpg");
         AuthorDTO authorDTO = new AuthorDTO(user);
         List<String> genres = Arrays.asList("Fantasía", "Aventura");
         List<String> tags = Arrays.asList("Dragones", "Poderes");
@@ -20,7 +20,7 @@ class StoryTest {
         Chapter chapter2 = new Chapter("Capítulo 2", "Contenido 2", 2);
         List<Chapter> chapters = Arrays.asList(chapter1, chapter2);
 
-        Story story = new Story("Título", "Sinopsis", authorDTO, 4.5, genres, tags, chapters, 2L);
+        Story story = new Story("Título", "Sinopsis", authorDTO, 4.5, genres, tags, chapters, null);
 
         assertEquals("Título", story.getTitle());
         assertEquals("Sinopsis", story.getSynopsis());

@@ -33,9 +33,9 @@ public class UserControllerTest {
     @Test
     void testGetAllUsers() {
         // Arrange - Crear datos mock
-        User user1 = new User("danielvflores", 1L, "daniel@email.com", "password", "Daniel", "", "");
-        User user2 = new User("janedoe", 2L, "jane@email.com", "password", "Jane", "", "");
-        User user3 = new User("johnsmith", 3L, "john@email.com", "password", "John", "", "");
+        User user1 = new User("danielvflores", null, "daniel@email.com", "password", "Daniel", "", "");
+        User user2 = new User("janedoe", null, "jane@email.com", "password", "Jane", "", "");
+        User user3 = new User("johnsmith", null, "john@email.com", "password", "John", "", "");
         List<User> mockUsers = Arrays.asList(user1, user2, user3);
         
         when(userService.getAllUsers()).thenReturn(mockUsers);
@@ -54,15 +54,16 @@ public class UserControllerTest {
     @Test
     void testGetUserById() {
         // Arrange
-        User mockUser = new User("danielvflores", 1L, "daniel@email.com", "password", "Daniel", "", "");
-        when(userService.getUserById(1L)).thenReturn(mockUser);
+        String testId = "test-uuid-123";
+        User mockUser = new User("danielvflores", testId, "daniel@email.com", "password", "Daniel", "", "");
+        when(userService.getUserById(testId)).thenReturn(mockUser);
         
         // Act
-        User user = userController.getUserById(1L);
+        User user = userController.getUserById(testId);
         
         // Assert
         assertNotNull(user);
-        assertEquals(1L, user.getId());
+        assertEquals(testId, user.getId());
         assertEquals("danielvflores", user.getUsername());
         assertEquals("daniel@email.com", user.getEmail());
     }
@@ -70,10 +71,11 @@ public class UserControllerTest {
     @Test
     void testGetUserByIdNotFound() {
         // Arrange
-        when(userService.getUserById(999L)).thenReturn(null);
+        String nonExistentId = "non-existent-uuid";
+        when(userService.getUserById(nonExistentId)).thenReturn(null);
         
         // Act
-        User user = userController.getUserById(999L);
+        User user = userController.getUserById(nonExistentId);
         
         // Assert
         assertNull(user);
@@ -83,7 +85,7 @@ public class UserControllerTest {
     void testCreateUser() {
         // Arrange
         User newUser = new User("testuser", null, "test@email.com", "hashedPassword", "Test User", "Test bio", "http://test.url");
-        User createdUser = new User("testuser", 4L, "test@email.com", "hashedPassword", "Test User", "Test bio", "http://test.url");
+        User createdUser = new User("testuser", "created-uuid-456", "test@email.com", "hashedPassword", "Test User", "Test bio", "http://test.url");
         
         when(userService.createUser(newUser)).thenReturn(createdUser);
         
@@ -103,17 +105,18 @@ public class UserControllerTest {
     @Test
     void testUpdateUser() {
         // Arrange
+        String testId = "update-test-uuid";
         User updatedUser = new User("danielupdated", null, "daniel.updated@email.com", "newHashedPassword", "Daniel Updated", "Updated bio", "http://updated.url");
-        User returnedUser = new User("danielupdated", 1L, "daniel.updated@email.com", "newHashedPassword", "Daniel Updated", "Updated bio", "http://updated.url");
+        User returnedUser = new User("danielupdated", testId, "daniel.updated@email.com", "newHashedPassword", "Daniel Updated", "Updated bio", "http://updated.url");
         
-        when(userService.updateUser(1L, updatedUser)).thenReturn(returnedUser);
+        when(userService.updateUser(testId, updatedUser)).thenReturn(returnedUser);
         
         // Act
-        User result = userController.updateUser(1L, updatedUser);
+        User result = userController.updateUser(testId, updatedUser);
         
         // Assert
         assertNotNull(result);
-        assertEquals(1L, result.getId());
+        assertEquals(testId, result.getId());
         assertEquals("danielupdated", result.getUsername());
         assertEquals("daniel.updated@email.com", result.getEmail());
     }
@@ -121,11 +124,12 @@ public class UserControllerTest {
     @Test
     void testUpdateUserNotFound() {
         // Arrange
+        String nonExistentId = "non-existent-update-uuid";
         User updatedUser = new User("nonexistent", null, "none@email.com", "password", "None", "None", "none");
-        when(userService.updateUser(999L, updatedUser)).thenReturn(null);
+        when(userService.updateUser(nonExistentId, updatedUser)).thenReturn(null);
         
         // Act
-        User result = userController.updateUser(999L, updatedUser);
+        User result = userController.updateUser(nonExistentId, updatedUser);
         
         // Assert
         assertNull(result);
@@ -134,30 +138,32 @@ public class UserControllerTest {
     @Test
     void testDeleteUser() {
         // Arrange
-        when(userService.deleteUser(1L)).thenReturn(true);
+        String testId = "delete-test-uuid";
+        when(userService.deleteUser(testId)).thenReturn(true);
         
         // Act
-        String result = userController.deleteUser(1L);
+        String result = userController.deleteUser(testId);
         
         // Assert
-        assertEquals("User with ID 1 deleted successfully", result);
+        assertEquals("User with ID " + testId + " deleted successfully", result);
         
         // Verify service method was called
-        verify(userService).deleteUser(1L);
+        verify(userService).deleteUser(testId);
     }
 
     @Test
     void testGetUserProfile() {
         // Arrange
-        User mockUser = new User("danielvflores", 1L, "daniel@email.com", "password", "Daniel", "", "");
-        when(userService.getUserProfile(1L)).thenReturn(mockUser);
+        String testId = "profile-test-uuid";
+        User mockUser = new User("danielvflores", testId, "daniel@email.com", "password", "Daniel", "", "");
+        when(userService.getUserProfile(testId)).thenReturn(mockUser);
         
         // Act
-        User userProfile = userController.getUserProfile(1L);
+        User userProfile = userController.getUserProfile(testId);
         
         // Assert
         assertNotNull(userProfile);
-        assertEquals(1L, userProfile.getId());
+        assertEquals(testId, userProfile.getId());
         assertEquals("danielvflores", userProfile.getUsername());
     }
 }
