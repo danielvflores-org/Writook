@@ -43,8 +43,8 @@ public class StoryController {
     }
 
     @GetMapping("/{id}")
-    public Story getStoryById(@PathVariable("id") String id, @RequestHeader(value = "Authorization", required = false) String authHeader) {
-        return storyService.getStoryById(id, authHeader);
+    public Story getStoryById(@PathVariable("id") String id) {
+        return storyService.getStoryById(id);
     }
 
     @GetMapping("/{id}/ownership")

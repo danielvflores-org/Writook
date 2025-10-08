@@ -37,6 +37,12 @@
             <artifactId>postgresql</artifactId>
             <version>42.7.7</version>
         </dependency>
+        <!-- Flyway for database migrations -->
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+            <version>9.22.1</version>
+        </dependency>
         <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-test -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -103,6 +109,12 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>4.0.0-M2</version>
+            </plugin>
+            <!-- Flyway Maven plugin to run baseline/migrate from command line -->
+            <plugin>
+                <groupId>org.flywaydb</groupId>
+                <artifactId>flyway-maven-plugin</artifactId>
+                <version>9.22.1</version>
             </plugin>
         </plugins>
     </build>
