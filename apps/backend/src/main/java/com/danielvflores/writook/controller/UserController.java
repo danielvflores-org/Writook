@@ -31,7 +31,7 @@ public class UserController {
     }
     
     @GetMapping("/{id}")
-    public User getUserById(@PathVariable("id") Long id) {
+    public User getUserById(@PathVariable("id") String id) {
         return userService.getUserById(id);
     }
     
@@ -41,18 +41,18 @@ public class UserController {
     }
     
     @PutMapping("/{id}")
-    public User updateUser(@PathVariable("id") Long id, @RequestBody User updatedUser) {
+    public User updateUser(@PathVariable("id") String id, @RequestBody User updatedUser) {
         return userService.updateUser(id, updatedUser);
     }
     
     @DeleteMapping("/{id}")
-    public String deleteUser(@PathVariable("id") Long id) {
+    public String deleteUser(@PathVariable("id") String id) {
         boolean deleted = userService.deleteUser(id);
         return deleted ? "User with ID " + id + " deleted successfully" : "User not found";
     }
     
     @GetMapping("/{id}/profile")
-    public User getUserProfile(@PathVariable("id") Long id) {
+    public User getUserProfile(@PathVariable("id") String id) {
         return userService.getUserProfile(id);
     }
 }

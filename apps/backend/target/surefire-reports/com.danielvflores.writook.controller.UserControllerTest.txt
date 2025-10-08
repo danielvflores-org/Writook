@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: com.danielvflores.writook.controller.UserControllerTest
 -------------------------------------------------------------------------------
-Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.075 s -- in com.danielvflores.writook.controller.UserControllerTest
+Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.094 s -- in com.danielvflores.writook.controller.UserControllerTest

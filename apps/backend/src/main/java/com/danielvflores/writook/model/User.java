@@ -1,8 +1,10 @@
 package com.danielvflores.writook.model;
 
+import java.util.UUID;
+
 public class User {
     private final String username;
-    private Long id;
+    private String id;
     private final String email;
     // FOR SECURITY REASONS, THIS PASSWORD WILL BE HASHED BEFORE BEING STORED IN THE DATABASE.
     private final String password;
@@ -10,9 +12,9 @@ public class User {
     private final String bio;
     private final String profilePictureUrl;
 
-    public User(String username, Long id,String email, String password, String displayName, String bio, String profilePictureUrl) {
+    public User(String username, String id, String email, String password, String displayName, String bio, String profilePictureUrl) {
         this.username = username;
-        this.id = id;
+        this.id = id != null ? id : UUID.randomUUID().toString();
         this.email = email;
         this.password = password;
         this.displayName = displayName;
@@ -46,11 +48,11 @@ public class User {
         return profilePictureUrl;
     }
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 

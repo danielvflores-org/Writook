@@ -1,6 +1,7 @@
 package com.danielvflores.writook.model;
 
 import java.util.List;
+import java.util.UUID;
 
 import com.danielvflores.writook.dto.AuthorDTO;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -14,7 +15,7 @@ public class Story {
     private final List<String> genres;
     private final List<String> tags;
     private final List<Chapter> chapters; // THIS IS A COMPOSITION RELATIONSHIP, IF THE STORY IS DELETED, THE CHAPTERS ARE DELETED TOO.
-    private Long id;
+    private String id;
 
     @JsonCreator
     public Story(
@@ -25,7 +26,7 @@ public class Story {
             @JsonProperty("genres") List<String> genres, 
             @JsonProperty("tags") List<String> tags, 
             @JsonProperty("chapters") List<Chapter> chapters, 
-            @JsonProperty("id") Long id) {
+            @JsonProperty("id") String id) {
         this.title = title;
         this.synopsis = synopsis;
         this.author = author;
@@ -33,7 +34,7 @@ public class Story {
         this.genres = genres;
         this.tags = tags;
         this.chapters = chapters;
-        this.id = id;
+        this.id = id != null ? id : UUID.randomUUID().toString();
     }
 
     // ONLY GETTERS ARE REQUIRED — THE STORY OBJECT IS IMMUTABLE.
@@ -70,11 +71,11 @@ public class Story {
         this.rating = rating;
     }
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 }

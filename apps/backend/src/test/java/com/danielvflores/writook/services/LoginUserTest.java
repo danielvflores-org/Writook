@@ -36,7 +36,7 @@ public class LoginUserTest {
         String username = "danielvflores";
         String password = "password123";
         
-        User existingUser = new User(username, 1L, "daniel@email.com", password, "Daniel V. Flores", "A passionate writer.", "https://avatar.url/daniel.jpg");
+        User existingUser = new User(username, null, "daniel@email.com", password, "Daniel V. Flores", "A passionate writer.", "https://avatar.url/daniel.jpg");
         
         when(userService.getAllUsers()).thenReturn(Arrays.asList(existingUser));
 
@@ -72,7 +72,7 @@ public class LoginUserTest {
         String incorrectPassword = "wrongpassword";
         String correctPassword = "password123";
         
-        User existingUser = new User(username, 1L, "daniel@email.com", correctPassword, "Daniel V. Flores", "A passionate writer.", "https://avatar.url/daniel.jpg");
+        User existingUser = new User(username, null, "daniel@email.com", correctPassword, "Daniel V. Flores", "A passionate writer.", "https://avatar.url/daniel.jpg");
         
         when(userService.getAllUsers()).thenReturn(Arrays.asList(existingUser));
 
