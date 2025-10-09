@@ -1,0 +1,21 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+        "type": "java",
+        "name": "WritookApplication",
+        "request": "launch",
+        "mainClass": "com.danielvflores.writook.WritookApplication",
+        "projectName": "writook-backend"
+    },
+    {
+        "type": "java",
+        "name": "Run Writook (dev)",
+        "request": "launch",
+        "mainClass": "com.danielvflores.writook.WritookApplication",
+        "projectName": "apps/backend",
+        "envFile": "${workspaceFolder}/.env",
+        "args": "--spring.profiles.active=dev"
+    }
+]
+}
