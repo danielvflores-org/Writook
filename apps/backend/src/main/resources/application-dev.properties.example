@@ -1,7 +1,9 @@
 # Development properties for Postgres
 spring.datasource.url=jdbc:postgresql://localhost:5432/writook_library_db
 spring.datasource.username=postgres
-spring.datasource.password=2375
+# Example: set your DB password in an environment variable named DB_PASSWORD
+# On Windows PowerShell: $env:DB_PASSWORD = 'your_local_password'
+spring.datasource.password=${DB_PASSWORD:}
 spring.datasource.driver-class-name=org.postgresql.Driver
 spring.jpa.database-platform=org.hibernate.dialect.PostgreSQLDialect
 # Don't let Hibernate auto-create/drop schema in dev; we use Flyway
