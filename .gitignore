@@ -140,3 +140,5 @@ vite.config.ts.timestamp-*
 apps/backend/src/main/resources/application.properties
 apps/backend/src/main/resources/application-dev.properties
 apps/backend/target/
+# Ignore local env file with secrets
+.env
