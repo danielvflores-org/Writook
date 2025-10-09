@@ -12,6 +12,7 @@ export default function MyWorks() {
   const [stories, setStories] = useState([]);
   const [loading, setLoading] = useState(true);
   const { notification, showNotification, hideNotification } = useNotification();
+  const { loading: authLoading } = useAuth();
 
   useEffect(() => {
     if (user?.username) {
@@ -27,12 +28,14 @@ export default function MyWorks() {
         'Content-Type': 'application/json'
       };
       
-      // Add authorization header if token exists
+      // IMPORTANT: If we have a token, include it in the Authorization header
       if (token) {
         headers['Authorization'] = `Bearer ${token}`;
       }
-      
-      const response = await fetch(`http://localhost:8080/api/v1/stories/author/${user.username}`, {
+
+      // If we have a token, prefer the authenticated endpoint which uses the token to identify the user.
+      const url = token ? `http://localhost:8080/api/v1/stories/me` : `http://localhost:8080/api/v1/stories/author/${user?.username}`;
+      const response = await fetch(url, {
         headers
       });
       
@@ -40,13 +43,11 @@ export default function MyWorks() {
         const userStories = await response.json();
         setStories(userStories);
       } else if (response.status === 404 || response.status === 403) {
-        // User has no stories yet, or endpoint doesn't exist - show empty state
         setStories([]);
       } else {
         throw new Error('Failed to load stories');
       }
     } catch (error) {
-      // On any error, show empty state instead of error message
       console.log('Error loading stories (showing empty state):', error);
       setStories([]);
     } finally {
@@ -66,7 +67,8 @@ export default function MyWorks() {
     navigate(`/story/${storyId}`);
   };
 
-  if (loading) {
+  // Wait for auth verification (authLoading) or our local loading state
+  if (authLoading || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">

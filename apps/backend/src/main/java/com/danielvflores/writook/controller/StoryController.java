@@ -173,6 +173,19 @@ public class StoryController {
         return storyService.getStoriesByAuthorUsername(username);
     }
 
+    @GetMapping("/me")
+    public List<Story> getMyStories(@RequestHeader("Authorization") String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            throw new RuntimeException("Token not provided");
+        }
+        String token = authHeader.substring(7);
+        String usernameFromToken = TokenJWTUtility.getUsernameFromToken(token);
+        if (usernameFromToken == null) {
+            throw new RuntimeException("Invalid token");
+        }
+        return storyService.getStoriesByAuthorUsername(usernameFromToken);
+    }
+
     @PutMapping("/{id}/metadata")
     public ResponseEntity<?> updateStoryMetadata(@PathVariable("id") String id, @RequestBody Story updatedStory, @RequestHeader("Authorization") String authHeader) {
         try {
