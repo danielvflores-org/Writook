@@ -42,6 +42,22 @@ public class StoryController {
         return storyService.getAllStories();
     }
 
+    @GetMapping("/with-stats")
+    public List<StoryService.StoryWithStatsDTO> getAllStoriesWithStats() {
+        return storyService.getAllStoriesWithStats();
+    }
+
+    @GetMapping("/{id}/stats")
+    public ResponseEntity<?> getStoryStats(@PathVariable("id") String id) {
+        try {
+            com.danielvflores.writook.dto.StoryStatsDTO stats = storyService.getStoryStats(id);
+            return ResponseEntity.ok(stats);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body("Error al obtener estadísticas: " + e.getMessage());
+        }
+    }
+
     @GetMapping("/{id}")
     public Story getStoryById(@PathVariable("id") String id) {
         return storyService.getStoryById(id);

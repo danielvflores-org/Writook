@@ -38,26 +38,13 @@ public class StoryService {
     public void addComment(String storyId, String chapterId, String authorId, String content) {
         try {
             UUID sId = UUID.fromString(storyId);
-            StoryEntity story = storyRepository.findById(sId).orElse(null);
-            if (story == null) throw new RuntimeException("Historia no encontrada");
-
-            com.danielvflores.writook.entity.CommentEntity ce = new com.danielvflores.writook.entity.CommentEntity();
-            ce.setId(UUID.randomUUID());
-            ce.setStory(story);
-            if (chapterId != null) {
-                try {
-                    UUID cId = UUID.fromString(chapterId);
-                    ChapterEntity chapter = chapterRepository.findById(cId).orElse(null);
-                    ce.setChapter(chapter);
-                } catch (IllegalArgumentException ex) {
-                    // ignore invalid chapter id
-                }
-            }
-            if (authorId != null) {
-                try { ce.setAuthorId(UUID.fromString(authorId)); } catch (IllegalArgumentException ex) {}
-            }
-            ce.setContent(content);
-            commentRepository.save(ce);
+            UUID authorUuid = UUID.fromString(authorId);
+            
+            // Usar el nuevo sistema de comentarios
+            com.danielvflores.writook.model.Comment comment = 
+                new com.danielvflores.writook.model.Comment(sId, authorUuid, content);
+            commentRepository.save(comment);
+            
         } catch (IllegalArgumentException ex) {
             throw new RuntimeException("ID inválido");
         }
@@ -92,7 +79,6 @@ public class StoryService {
             e.setAuthorBio(s.getAuthor().getBio());
             e.setAuthorProfilePictureUrl(s.getAuthor().getProfilePictureUrl());
         }
-        // chapters, genres and tags will be managed by the service methods
         return e;
     }
 
@@ -318,5 +304,68 @@ public class StoryService {
     public List<Story> searchStories(String query) {
         String lowerQuery = query.toLowerCase();
         return storyRepository.findAll().stream().filter(e -> (e.getTitle() != null && e.getTitle().toLowerCase().contains(lowerQuery)) || (e.getSynopsis() != null && e.getSynopsis().toLowerCase().contains(lowerQuery)) || (e.getAuthorDisplayName() != null && e.getAuthorDisplayName().toLowerCase().contains(lowerQuery))).map(StoryService::entityToModel).collect(Collectors.toList());
+    }
+
+    // Nuevos métodos para estadísticas reales
+    @Autowired
+    private com.danielvflores.writook.service.RatingService ratingService;
+
+    @Autowired
+    private com.danielvflores.writook.service.CommentService commentService;
+
+    /**
+     * Obtener estadísticas completas de una historia
+     */
+    public com.danielvflores.writook.dto.StoryStatsDTO getStoryStats(String storyId) {
+        try {
+            UUID storyUuid = UUID.fromString(storyId);
+            
+            // Obtener métricas reales
+            Double averageRating = ratingService.getAverageRating(storyUuid);
+            Long totalRatings = ratingService.getTotalRatings(storyUuid);
+            Long totalComments = commentService.getTotalComments(storyUuid);
+            
+            // Contar capítulos
+            Story story = getStoryById(storyId);
+            Integer totalChapters = story != null && story.getChapters() != null ? 
+                story.getChapters().size() : 0;
+            
+            return new com.danielvflores.writook.dto.StoryStatsDTO(
+                storyUuid, averageRating, totalRatings, totalComments, totalChapters);
+        } catch (Exception e) {
+            // Retornar estadísticas vacías en caso de error
+            return new com.danielvflores.writook.dto.StoryStatsDTO(
+                UUID.fromString(storyId), 0.0, 0L, 0L, 0);
+        }
+    }
+
+    /**
+     * Obtener todas las historias con sus estadísticas
+     */
+    public List<StoryWithStatsDTO> getAllStoriesWithStats() {
+        List<Story> stories = getAllStories();
+        return stories.stream()
+            .map(story -> {
+                com.danielvflores.writook.dto.StoryStatsDTO stats = getStoryStats(story.getId());
+                return new StoryWithStatsDTO(story, stats);
+            })
+            .collect(Collectors.toList());
+    }
+
+    // DTO para combinar historia con estadísticas
+    public static class StoryWithStatsDTO {
+        private Story story;
+        private com.danielvflores.writook.dto.StoryStatsDTO stats;
+
+        public StoryWithStatsDTO(Story story, com.danielvflores.writook.dto.StoryStatsDTO stats) {
+            this.story = story;
+            this.stats = stats;
+        }
+
+        public Story getStory() { return story; }
+        public void setStory(Story story) { this.story = story; }
+        
+        public com.danielvflores.writook.dto.StoryStatsDTO getStats() { return stats; }
+        public void setStats(com.danielvflores.writook.dto.StoryStatsDTO stats) { this.stats = stats; }
     }
 }

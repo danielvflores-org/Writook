@@ -103,18 +103,34 @@
                 <version>3.11.0</version>
                 <configuration>
                     <release>21</release>
+                    <parameters>true</parameters>
                 </configuration>
             </plugin>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>4.0.0-M2</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
             <!-- Flyway Maven plugin to run baseline/migrate from command line -->
             <plugin>
                 <groupId>org.flywaydb</groupId>
                 <artifactId>flyway-maven-plugin</artifactId>
                 <version>9.22.1</version>
+                <configuration>
+                    <url>jdbc:postgresql://localhost:5432/writook_library_db</url>
+                    <user>postgres</user>
+                    <password>${DB_PASSWORD:}</password>
+                    <locations>
+                        <location>classpath:db/migration</location>
+                    </locations>
+                </configuration>
             </plugin>
         </plugins>
     </build>

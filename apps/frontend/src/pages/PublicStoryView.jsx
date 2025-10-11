@@ -4,6 +4,11 @@ import useAuth from '../config/AuthContext';
 import Notification from '../components/Notification';
 import Layout from '../components/Layout';
 import { useNotification } from '../hooks/useNotification';
+import StarRating from '../components/StarRating';
+import CommentsSection from '../components/CommentsSection';
+import { storyService } from '../services/storyService';
+import { ratingService } from '../services/ratingService';
+import { viewsService } from '../services/viewsService';
 
 export default function PublicStoryView() {
   const { storyId } = useParams();
@@ -11,6 +16,8 @@ export default function PublicStoryView() {
   const { user } = useAuth();
   
   const [story, setStory] = useState(null);
+  const [storyStats, setStoryStats] = useState(null);
+  const [myRating, setMyRating] = useState(0);
   const [loading, setLoading] = useState(true);
   const { notification, showNotification, hideNotification } = useNotification();
   const [isOwner, setIsOwner] = useState(false);
@@ -18,29 +25,51 @@ export default function PublicStoryView() {
 
   useEffect(() => {
     loadStory();
-  }, [storyId]);
+    loadStoryStats();
+    if (user) {
+      loadMyRating();
+    }
+  }, [storyId, user]);
 
   const loadStory = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`http://localhost:8080/api/v1/stories/${storyId}`);
+      const storyData = await storyService.getStoryById(storyId);
+      setStory(storyData);
       
-      if (response.ok) {
-        const storyData = await response.json();
-        setStory(storyData);
-        
-        // Check ownership if user is logged in
-        if (user) {
-          await checkOwnership(storyData);
-        }
-      } else {
-        throw new Error('Story not found');
+      // Check ownership if user is logged in
+      if (user) {
+        await checkOwnership(storyData);
       }
     } catch (error) {
       showNotification('Error loading story', 'error');
       navigate('/home');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadStoryStats = async () => {
+    try {
+      const stats = await storyService.getStoryStats(storyId);
+      setStoryStats(stats);
+    } catch (error) {
+      console.error('Error loading story stats:', error);
+    }
+  };
+
+  const loadMyRating = async () => {
+    try {
+      const ratingData = await ratingService.getMyRating(storyId);
+      if (ratingData.success && ratingData.data) {
+        setMyRating(ratingData.data.rating || 0);
+      } else {
+        setMyRating(0);
+      }
+    } catch (error) {
+      // User hasn't rated this story yet or no permission
+      console.log('No rating found for user:', error.message);
+      setMyRating(0);
     }
   };
 
@@ -61,22 +90,29 @@ export default function PublicStoryView() {
       }
 
       // If no direct match, try ownership endpoint
-      const authToken = localStorage.getItem('authToken');
-      if (authToken) {
-        const ownershipResponse = await fetch(`http://localhost:8080/api/v1/stories/${storyId}/ownership`, {
-          headers: {
-            'Authorization': `Bearer ${authToken}`
-          }
-        });
-        
-        if (ownershipResponse.ok) {
-          setIsOwner(true);
-        }
-      }
+      const isOwnerResult = await storyService.checkStoryOwnership(storyId);
+      setIsOwner(!!isOwnerResult);
     } catch (error) {
       // If ownership check fails, user is not owner (or not logged in)
       console.log('Ownership check failed:', error);
       setIsOwner(false);
+    }
+  };
+
+  const handleRateStory = async (rating) => {
+    if (!user) {
+      showNotification('Please log in to rate this story', 'warning');
+      return;
+    }
+
+    try {
+      await ratingService.rateStory(storyId, rating);
+      setMyRating(rating);
+      showNotification('Rating submitted successfully!', 'success');
+      // Reload stats to show updated average
+      await loadStoryStats();
+    } catch (error) {
+      showNotification(error.message || 'Error submitting rating', 'error');
     }
   };
 
@@ -190,21 +226,48 @@ export default function PublicStoryView() {
               <div className="p-6 space-y-4">
                 <div className="flex justify-between items-center">
                   <span className="text-gray-600 text-sm">Rating:</span>
-                  <div className="flex items-center space-x-1">
-                    <span className="text-yellow-400">⭐</span>
-                    <span className="font-medium text-sm">{story.rating || 0}</span>
+                  <div className="flex items-center space-x-2">
+                    <StarRating 
+                      rating={storyStats?.averageRating || 0} 
+                      readOnly={true}
+                      size="w-4 h-4"
+                    />
                   </div>
                 </div>
                 
+                {/* User Rating Section */}
+                {user && !isOwner && (
+                  <div className="border-t pt-4">
+                    <span className="text-gray-600 text-sm block mb-2">Your Rating:</span>
+                    <StarRating 
+                      rating={myRating} 
+                      onRate={handleRateStory}
+                      readOnly={false}
+                      size="w-5 h-5"
+                    />
+                  </div>
+                )}
+                
                 <div className="flex justify-between items-center">
                   <span className="text-gray-600 text-sm">Chapters:</span>
-                  <span className="font-semibold text-lg">{story.chapters.length}</span>
+                  <span className="font-semibold text-lg">{storyStats?.totalChapters || story?.chapters?.length || 0}</span>
+                </div>
+                
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600 text-sm">Comments:</span>
+                  <span className="font-semibold text-lg">{storyStats?.totalComments || 0}</span>
                 </div>
                 
                 <div className="flex justify-between items-center">
                   <span className="text-gray-600 text-sm">Status:</span>
-                  <span className="text-green-600 bg-green-100 px-2 py-1 rounded-full text-xs font-medium">
-                    In Progress
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                    storyStats?.status === 'Completed' 
+                      ? 'text-green-600 bg-green-100' 
+                      : storyStats?.status === 'On Hold'
+                      ? 'text-yellow-600 bg-yellow-100'
+                      : 'text-blue-600 bg-blue-100'
+                  }`}>
+                    {storyStats?.status || 'In Progress'}
                   </span>
                 </div>
                 
@@ -336,18 +399,10 @@ export default function PublicStoryView() {
                                 {chapter.title}
                               </h4>
                               <div className="flex items-center space-x-4 text-xs text-gray-500 mt-1">
-                                <span>Published • Sep 27, 2025</span>
-                                <div className="flex items-center space-x-1">
-                                  <span>⭐</span>
-                                  <span>4</span>
-                                </div>
-                                <div className="flex items-center space-x-1">
-                                  <span>💬</span>
-                                  <span>0</span>
-                                </div>
+                                <span>Published • {new Date(chapter.createdAt || Date.now()).toLocaleDateString()}</span>
                                 <div className="flex items-center space-x-1">
                                   <span>👁</span>
-                                  <span>62</span>
+                                  <span>{viewsService.getChapterViews(story.id, chapter.number)}</span>
                                 </div>
                               </div>
                             </div>
@@ -391,6 +446,9 @@ export default function PublicStoryView() {
                 </div>
               )}
             </div>
+            
+            {/* Comments Section */}
+            <CommentsSection storyId={storyId} />
           </div>
         </div>
       </div>

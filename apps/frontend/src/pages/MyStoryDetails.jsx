@@ -5,6 +5,9 @@ import Notification from '../components/Notification';
 import EditStoryModal from '../components/EditStoryModal';
 import Layout from '../components/Layout';
 import { useNotification } from '../hooks/useNotification';
+import StarRating from '../components/StarRating';
+import { storyService } from '../services/storyService';
+import { viewsService } from '../services/viewsService';
 
 export default function MyStoryDetails() {
   const { storyId } = useParams();
@@ -12,6 +15,7 @@ export default function MyStoryDetails() {
   const { user } = useAuth();
   
   const [story, setStory] = useState(null);
+  const [storyStats, setStoryStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const { notification, showNotification, hideNotification } = useNotification();
   const [isOwner, setIsOwner] = useState(false);
@@ -20,6 +24,7 @@ export default function MyStoryDetails() {
 
   useEffect(() => {
     loadStory();
+    loadStoryStats();
   }, [storyId]);
 
   const loadStory = async () => {
@@ -74,6 +79,15 @@ export default function MyStoryDetails() {
       navigate('/home');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadStoryStats = async () => {
+    try {
+      const stats = await storyService.getStoryStats(storyId);
+      setStoryStats(stats);
+    } catch (error) {
+      console.error('Error loading story stats:', error);
     }
   };
 
@@ -205,21 +219,35 @@ export default function MyStoryDetails() {
               <div className="p-6 space-y-4">
                 <div className="flex justify-between items-center">
                   <span className="text-gray-600 text-sm">Rating:</span>
-                  <div className="flex items-center space-x-1">
-                    <span className="text-yellow-400">⭐</span>
-                    <span className="font-medium text-sm">{story.rating || 0}</span>
+                  <div className="flex items-center space-x-2">
+                    <StarRating 
+                      rating={storyStats?.averageRating || 0} 
+                      readOnly={true}
+                      size="w-4 h-4"
+                    />
                   </div>
                 </div>
                 
                 <div className="flex justify-between items-center">
                   <span className="text-gray-600 text-sm">Chapters:</span>
-                  <span className="font-semibold text-lg">{story.chapters.length}</span>
+                  <span className="font-semibold text-lg">{storyStats?.totalChapters || story?.chapters?.length || 0}</span>
+                </div>
+                
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600 text-sm">Comments:</span>
+                  <span className="font-semibold text-lg">{storyStats?.totalComments || 0}</span>
                 </div>
                 
                 <div className="flex justify-between items-center">
                   <span className="text-gray-600 text-sm">Status:</span>
-                  <span className="text-green-600 bg-green-100 px-2 py-1 rounded-full text-xs font-medium">
-                    In Progress
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                    storyStats?.status === 'Completed' 
+                      ? 'text-green-600 bg-green-100' 
+                      : storyStats?.status === 'On Hold'
+                      ? 'text-yellow-600 bg-yellow-100'
+                      : 'text-blue-600 bg-blue-100'
+                  }`}>
+                    {storyStats?.status || 'In Progress'}
                   </span>
                 </div>
                 
@@ -347,18 +375,10 @@ export default function MyStoryDetails() {
                                 {chapter.title}
                               </h4>
                               <div className="flex items-center space-x-4 text-xs text-gray-500 mt-1">
-                                <span>Published • Sep 27, 2025</span>
-                                <div className="flex items-center space-x-1">
-                                  <span>⭐</span>
-                                  <span>4</span>
-                                </div>
-                                <div className="flex items-center space-x-1">
-                                  <span>💬</span>
-                                  <span>0</span>
-                                </div>
+                                <span>Published • {new Date(chapter.createdAt || Date.now()).toLocaleDateString()}</span>
                                 <div className="flex items-center space-x-1">
                                   <span>👁</span>
-                                  <span>62</span>
+                                  <span>{viewsService.getChapterViews(story.id, chapter.number)}</span>
                                 </div>
                               </div>
                             </div>
