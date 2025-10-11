@@ -32,7 +32,14 @@ public class SecurityConfig {
                     "/api/v1/health").permitAll()
                 .requestMatchers(org.springframework.http.HttpMethod.GET,
                     "/api/v1/stories",
-                    "/api/v1/stories/{id}").permitAll()
+                    "/api/v1/stories/{id}",
+                    "/api/v1/stories/{id}/stats",
+                    "/api/v1/stories/with-stats",
+                    "/api/v1/comments/stories/{id}",
+                    "/api/v1/ratings/stories/{id}",
+                    "/api/v1/chapters/stories/{storyId}/chapters/{chapterNumber}/stats",
+                    "/api/v1/chapters/stories/{storyId}/chapters/{chapterNumber}/comments",
+                    "/api/v1/chapters/stories/{storyId}/chapters/{chapterNumber}/ratings").permitAll()
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
