@@ -4,12 +4,14 @@ import useAuth from '../config/AuthContext.jsx';
 import Notification from '../components/Notification';
 import Layout from '../components/Layout';
 import { useNotification } from '../hooks/useNotification';
+import { storyService } from '../services/storyService';
 
 export default function MyWorks() {
   const navigate = useNavigate();
   const { user } = useAuth();
   
   const [stories, setStories] = useState([]);
+  const [storiesWithStats, setStoriesWithStats] = useState([]);
   const [loading, setLoading] = useState(true);
   const { notification, showNotification, hideNotification } = useNotification();
   const { loading: authLoading } = useAuth();
@@ -23,33 +25,34 @@ export default function MyWorks() {
   const loadUserStories = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('authToken');
-      const headers = {
-        'Content-Type': 'application/json'
-      };
+      const userStories = await storyService.getUserStories();
+      setStories(userStories);
       
-      // IMPORTANT: If we have a token, include it in the Authorization header
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-      }
-
-      // If we have a token, prefer the authenticated endpoint which uses the token to identify the user.
-      const url = token ? `http://localhost:8080/api/v1/stories/me` : `http://localhost:8080/api/v1/stories/author/${user?.username}`;
-      const response = await fetch(url, {
-        headers
+      // Load statistics for each story
+      const storiesWithStatsPromises = userStories.map(async (story) => {
+        try {
+          const stats = await storyService.getStoryStats(story.id);
+          return { ...story, stats };
+        } catch (error) {
+          console.log(`Error loading stats for story ${story.id}:`, error);
+          return { 
+            ...story, 
+            stats: { 
+              averageRating: 0, 
+              totalComments: 0, 
+              totalChapters: story.chapters?.length || 0, 
+              status: 'In Progress' 
+            } 
+          };
+        }
       });
       
-      if (response.ok) {
-        const userStories = await response.json();
-        setStories(userStories);
-      } else if (response.status === 404 || response.status === 403) {
-        setStories([]);
-      } else {
-        throw new Error('Failed to load stories');
-      }
+      const storiesWithStatsData = await Promise.all(storiesWithStatsPromises);
+      setStoriesWithStats(storiesWithStatsData);
     } catch (error) {
       console.log('Error loading stories (showing empty state):', error);
       setStories([]);
+      setStoriesWithStats([]);
     } finally {
       setLoading(false);
     }
@@ -103,7 +106,7 @@ export default function MyWorks() {
                 <h1 className="text-3xl font-bold text-gray-900">My Works</h1>
               </div>
               <p className="text-gray-600 mb-4">
-                Manage and edit your stories • {stories.length} {stories.length === 1 ? 'story' : 'stories'}
+                Manage and edit your stories • {storiesWithStats.length} {storiesWithStats.length === 1 ? 'story' : 'stories'}
               </p>
             </div>
             
@@ -119,7 +122,7 @@ export default function MyWorks() {
           </div>
         </div>
 
-        {stories.length === 0 ? (
+        {storiesWithStats.length === 0 ? (
           /* Empty State */
           <div className="text-center py-16">
             <div className="bg-white rounded-xl shadow-lg p-12 max-w-md mx-auto">
@@ -140,7 +143,7 @@ export default function MyWorks() {
         ) : (
           /* Stories Grid */
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {stories.map((story) => (
+            {storiesWithStats.map((story) => (
               <div key={story.id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
                 {/* Story Cover */}
                 <div className="aspect-[4/3] bg-gradient-to-br from-blue-400 to-purple-600 flex items-center justify-center">
@@ -164,15 +167,25 @@ export default function MyWorks() {
                     <div className="flex items-center space-x-4">
                       <span className="flex items-center">
                         <span className="text-yellow-500">⭐</span>
-                        <span className="ml-1">{story.rating || 0}</span>
+                        <span className="ml-1">{story.stats?.averageRating ? story.stats.averageRating.toFixed(1) : '0.0'}</span>
                       </span>
                       <span className="flex items-center">
                         <span className="text-blue-500">📄</span>
-                        <span className="ml-1">{story.chapters?.length || 0}</span>
+                        <span className="ml-1">{story.stats?.totalChapters || story.chapters?.length || 0}</span>
+                      </span>
+                      <span className="flex items-center">
+                        <span className="text-green-500">💬</span>
+                        <span className="ml-1">{story.stats?.totalComments || 0}</span>
                       </span>
                     </div>
-                    <span className="text-green-600 text-xs bg-green-100 px-2 py-1 rounded-full">
-                      In Progress
+                    <span className={`text-xs px-2 py-1 rounded-full ${
+                      story.stats?.status === 'Completed' 
+                        ? 'text-green-600 bg-green-100' 
+                        : story.stats?.status === 'On Hold'
+                        ? 'text-yellow-600 bg-yellow-100'
+                        : 'text-blue-600 bg-blue-100'
+                    }`}>
+                      {story.stats?.status || 'In Progress'}
                     </span>
                   </div>
 

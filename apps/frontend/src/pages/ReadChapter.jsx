@@ -3,7 +3,12 @@ import { useParams, useNavigate } from 'react-router-dom';
 import useAuth from '../config/AuthContext.jsx';
 import Notification from '../components/Notification';
 import Layout from '../components/Layout';
+import CommentsSection from '../components/CommentsSection';
+import StarRating from '../components/StarRating';
 import { useNotification } from '../hooks/useNotification';
+import { chapterRatingService } from '../services/chapterRatingService';
+import { storyService } from '../services/storyService';
+import { viewsService } from '../services/viewsService';
 
 export default function ReadChapter() {
   const { storyId, chapterNumber } = useParams();
@@ -14,11 +19,26 @@ export default function ReadChapter() {
   const [chapter, setChapter] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isOwner, setIsOwner] = useState(false);
+  const [userRating, setUserRating] = useState(0);
+  const [chapterStats, setChapterStats] = useState({ averageRating: 0, totalRatings: 0, totalComments: 0, views: 0 });
+  const [hasLiked, setHasLiked] = useState(false);
   const { notification, showNotification, hideNotification } = useNotification();
 
   useEffect(() => {
     loadChapterData();
+    // Increment view when chapter is opened
+    incrementChapterView();
   }, [storyId, chapterNumber, user]);
+
+  const incrementChapterView = () => {
+    const newViews = viewsService.incrementChapterViews(storyId, parseInt(chapterNumber));
+    console.log(`Chapter ${chapterNumber} views incremented to:`, newViews);
+    
+    // Update chapter object if it exists
+    if (chapter) {
+      setChapter(prev => ({ ...prev, views: newViews }));
+    }
+  };
 
   const loadChapterData = async () => {
     try {
@@ -39,13 +59,60 @@ export default function ReadChapter() {
       const chapterData = storyData.chapters.find(ch => ch.number === parseInt(chapterNumber));
       if (!chapterData) throw new Error('Chapter not found');
       
+      // Load views from service
+      const currentViews = viewsService.getChapterViews(storyId, parseInt(chapterNumber));
+      chapterData.views = currentViews;
+      
       setChapter(chapterData);
+      
+      // Load chapter statistics and user rating if logged in
+      await loadChapterStats();
+      if (user) {
+        await loadUserChapterRating();
+      }
       
     } catch (error) {
       showNotification('Error loading chapter', 'error');
       navigate('/home');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadChapterStats = async () => {
+    try {
+      const stats = await chapterRatingService.getChapterStats(storyId, parseInt(chapterNumber));
+      setChapterStats(stats);
+    } catch (error) {
+      console.error('Error loading chapter stats:', error);
+    }
+  };
+
+  const loadUserChapterRating = async () => {
+    try {
+      const rating = await chapterRatingService.getUserChapterRating(storyId, parseInt(chapterNumber));
+      setUserRating(rating || 0);
+      setHasLiked(rating > 0);
+    } catch (error) {
+      console.error('Error loading user chapter rating:', error);
+    }
+  };
+
+  const handleRating = async (rating) => {
+    if (!user) {
+      showNotification('Please log in to rate this chapter', 'error');
+      return;
+    }
+
+    try {
+      await chapterRatingService.rateChapter(storyId, parseInt(chapterNumber), rating);
+      setUserRating(rating);
+      setHasLiked(rating > 0);
+      await loadChapterStats(); // Refresh stats
+      showNotification('Chapter rating submitted successfully!', 'success');
+    } catch (error) {
+      console.error('Error rating chapter:', error);
+      showNotification('Error submitting rating', 'error');
     }
   };
 
@@ -180,41 +247,31 @@ export default function ReadChapter() {
           <div className="mt-16 pt-8 border-t border-gray-100">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-6">
-                <button className="flex items-center space-x-2 text-gray-600 hover:text-red-600 transition-all duration-200 px-4 py-2 rounded-lg hover:bg-red-50 hover:shadow-md">
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                  </svg>
-                  <span className="font-medium">Like</span>
-                </button>
-                <button className="flex items-center space-x-2 text-gray-600 hover:text-blue-600 transition-all duration-200 px-4 py-2 rounded-lg hover:bg-blue-50 hover:shadow-md">
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                  </svg>
-                  <span className="font-medium">Comment</span>
-                </button>
-                <span className="text-gray-500 text-sm bg-gray-50 px-3 py-1 rounded-full">{story.views || 0} views</span>
+                {/* Chapter Rating */}
+                <div className="flex items-center space-x-3">
+                  <StarRating 
+                    rating={userRating}
+                    onRatingChange={handleRating}
+                    readonly={!user}
+                    size="lg"
+                  />
+                  {chapterStats.totalRatings > 0 && (
+                    <span className="text-sm text-gray-600">
+                      {chapterStats.averageRating.toFixed(1)} ({chapterStats.totalRatings} ratings)
+                    </span>
+                  )}
+                </div>
+                <span className="text-gray-500 text-sm bg-gray-50 px-3 py-1 rounded-full">
+                  {localStorage.getItem(`chapter_${storyId}_${chapterNumber}_views`) || 0} views
+                </span>
               </div>
             </div>
           </div>
         </div>
 
         {/* Comments Section */}
-        <div className="mt-8 bg-white rounded-2xl shadow-xl border border-gray-100 p-10 hover:shadow-2xl transition-shadow duration-300">
-          <div className="flex items-center space-x-3 mb-8">
-            <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-              <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-              </svg>
-            </div>
-            <h3 className="text-2xl font-bold text-gray-800">Comments</h3>
-          </div>
-          <div className="text-center py-16 text-gray-500">
-            <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
-              <div className="text-3xl">💬</div>
-            </div>
-            <p className="text-xl font-semibold mb-3 text-gray-700">Be the first to comment!</p>
-            <p className="text-gray-500 max-w-md mx-auto leading-relaxed">Reader feedback motivates writers to continue their stories.</p>
-          </div>
+        <div className="mt-8">
+          <CommentsSection storyId={storyId} chapterNumber={parseInt(chapterNumber)} />
         </div>
       </div>
     </Layout>
