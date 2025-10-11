@@ -29,7 +29,7 @@ function LoginPage() {
       const data = await response.json();
 
       if (response.ok) {
-        login(data.data.token, data.data.user || { username: email });
+        login(data.data.token, data.data.user);
         showNotification("Login successful! Redirecting...", "success");
         
         // The AuthProvider will handle the user state change and App.jsx will redirect automatically

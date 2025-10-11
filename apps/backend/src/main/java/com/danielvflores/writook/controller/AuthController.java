@@ -1,7 +1,5 @@
 package com.danielvflores.writook.controller;
 
-import java.util.Collections;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -67,7 +65,14 @@ public class AuthController {
         }
 
         String token = TokenJWTUtility.generateToken(user.getUsername());
-        ApiResponseDTO successResponse = new ApiResponseDTO(true, "Inicio de sesión exitoso", Collections.singletonMap("token", token));
+        
+        // Create response with both token and user data
+        UserResponseDTO userResponse = new UserResponseDTO(user);
+        java.util.Map<String, Object> responseData = new java.util.HashMap<>();
+        responseData.put("token", token);
+        responseData.put("user", userResponse);
+        
+        ApiResponseDTO successResponse = new ApiResponseDTO(true, "Inicio de sesión exitoso", responseData);
         
         return ResponseEntity.ok(successResponse);
     }
