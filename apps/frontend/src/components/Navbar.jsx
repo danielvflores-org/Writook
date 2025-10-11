@@ -54,7 +54,7 @@ const Navbar = () => {
           <div className="flex items-center space-x-3">
             <div className="hidden sm:block text-right">
               <div className="text-black font-semibold text-sm">
-                {user?.displayName || user?.username || 'Invitado'}
+                {user?.username || 'Invitado'}
               </div>
               <div className="text-gray-500 text-xs">
                 Escritor
@@ -68,9 +68,9 @@ const Navbar = () => {
                 alt="Profile"
                 className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover border-2 border-blue-200"
               />
-            ) : (
+              ) : (
               <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 flex items-center justify-center text-white font-bold text-sm">
-                {(user?.displayName || user?.username || 'U').charAt(0).toUpperCase()}
+                {((user?.username || 'U').charAt(0) || 'U').toUpperCase()}
               </div>
             )}
 

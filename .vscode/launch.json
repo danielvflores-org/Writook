@@ -10,12 +10,20 @@
     },
     {
         "type": "java",
-        "name": "Run Writook (dev)",
+        "name": "WritookApplication",
         "request": "launch",
         "mainClass": "com.danielvflores.writook.WritookApplication",
         "projectName": "apps/backend",
         "envFile": "${workspaceFolder}/.env",
         "args": "--spring.profiles.active=dev"
+    },
+    {
+        "type": "java",
+        "name": "Run Writook (production)",
+        "request": "launch",
+        "mainClass": "com.danielvflores.writook.WritookApplication",
+        "projectName": "apps/backend",
+        "envFile": "${workspaceFolder}/.env"
     }
 ]
 }
