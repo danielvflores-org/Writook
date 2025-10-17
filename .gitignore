@@ -137,8 +137,40 @@ dist
 # Vite logs files
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+# Backend configuration files with sensitive data
 apps/backend/src/main/resources/application.properties
 apps/backend/src/main/resources/application-dev.properties
+apps/backend/src/main/resources/application-prod.properties
 apps/backend/target/
-# Ignore local env file with secrets
+
+# Frontend environment files
+apps/frontend/.env
+apps/frontend/.env.local
+apps/frontend/.env.production
+apps/frontend/.env.production.local
+
+# Global environment files
 .env
+.env.local
+.env.production
+.env.production.local
+
+# Database dumps and backups
+*.sql
+*.dump
+*.backup
+
+# IDE and system files
+.vscode/settings.json
+.idea/
+*.swp
+*.swo
+
+# Deployment keys and certificates
+*.key
+*.pem
+*.crt
+*.p12
+
+# Logs
+*.log
