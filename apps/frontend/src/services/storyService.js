@@ -1,15 +1,10 @@
 // Service for handling story operations with statistics
-const API_BASE = 'http://localhost:8080/api/v1';
+import { apiService, endpoints } from './apiService.js';
 
 export const storyService = {
   // Get all stories with statistics
   async getAllStoriesWithStats() {
-    const response = await fetch(`${API_BASE}/stories/with-stats`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    });
+    const response = await apiService.publicFetch(endpoints.stories.withStats);
 
     if (!response.ok) {
       const errorData = await response.json();
