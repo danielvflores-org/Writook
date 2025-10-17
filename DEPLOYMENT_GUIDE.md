@@ -1,117 +1,107 @@
 # 🚀 Writook Deployment Guide
 
-Esta guía te llevará paso a paso para deployar Writook en producción.
+Esta guía te llevará paso a paso para deployar Writook en producción usando **Railway** (backend + database) y **Vercel** (frontend).
 
 ## 📋 Pre-requisitos
 
 - [ ] Cuenta en GitHub (ya tienes ✅)
-- [ ] Cuenta en Railway/Render
-- [ ] Cuenta en Vercel/Netlify
+- [ ] Cuenta en Railway
+- [ ] Cuenta en Vercel
 
-## 🎯 Plan de Deploy
+## 🎯 Plan de Deploy - Arquitectura Elegida
 
-### 1️⃣ Database (Railway)
-### 2️⃣ Backend (Railway) 
-### 3️⃣ Frontend (Vercel)
+### Railway: Backend + Database 🚂
+### Vercel: Frontend ⚡
 
----
-
-## 🗄️ Paso 1: Deploy de la Base de Datos
-
-### Opción A: Railway (Recomendada)
-
-1. **Crear cuenta en Railway:**
-   - Ve a [railway.app](https://railway.app)
-   - Conecta con GitHub
-
-2. **Crear nuevo proyecto:**
-   ```
-   Dashboard → New Project → Provision PostgreSQL
-   ```
-
-3. **Obtener credenciales:**
-   - Ve a tu base de datos
-   - Copia la `DATABASE_URL`
-   - Guárdala para el backend
-
-### Opción B: Render
-
-1. **Crear cuenta en Render:**
-   - Ve a [render.com](https://render.com)
-   - Conecta con GitHub
-
-2. **Crear PostgreSQL:**
-   ```
-   Dashboard → New → PostgreSQL
-   ```
+**¿Por qué esta combinación?**
+- **Vercel:** Especializado en frontend, deploy automático, CDN global
+- **Railway:** Perfecto para backend + DB, networking interno, fácil configuración
 
 ---
 
-## ⚙️ Paso 2: Deploy del Backend
+## 🗄️ Paso 1: Railway - Backend + Database
 
-### Railway Backend Deploy
+### 1.1 Crear proyecto en Railway
 
-1. **Nuevo servicio:**
+1. **Ir a [railway.app](https://railway.app)**
+   - Login con GitHub
+   - New Project → Deploy from GitHub repo
+   - Seleccionar `danielvflores/Writook`
+
+2. **Configurar el servicio backend:**
    ```
-   Dashboard → New → GitHub Repo → Selecciona Writook
-   ```
-
-2. **Configurar variables de entorno:**
-   ```bash
-   DATABASE_URL=postgresql://user:pass@host:port/db
-   DB_USERNAME=postgres
-   DB_PASSWORD=tu_password
-   JWT_SECRET=tu_jwt_secret_muy_largo_y_seguro
-   CORS_ALLOWED_ORIGINS=https://tu-frontend.vercel.app
-   SPRING_PROFILES_ACTIVE=prod
+   Service Name: writook-backend
+   Root Directory: apps/backend
+   Build Command: ./mvnw clean package -DskipTests
+   Start Command: java -jar target/*.jar
    ```
 
-3. **Configurar build:**
-   - Root Directory: `apps/backend`
-   - Build Command: `./mvnw clean package -DskipTests`
-   - Start Command: `java -jar target/*.jar`
+### 1.2 Agregar PostgreSQL
 
-4. **Obtener URL del backend:**
-   - Railway te dará una URL como `https://writook-backend-xyz.railway.app`
+1. **En el mismo proyecto:**
+   ```
+   Add Service → Database → PostgreSQL
+   ```
+
+2. **Railway automáticamente genera:**
+   - `DATABASE_URL` (variable de entorno)
+   - Networking interno entre backend y DB
+
+### 1.3 Variables de Entorno
+
+En Railway, agregar estas variables:
+
+```bash
+SPRING_PROFILES_ACTIVE=prod
+JWT_SECRET=super_secreto_jwt_de_256_bits_minimo
+CORS_ALLOWED_ORIGINS=https://writook.vercel.app
+```
+
+*(Nota: La `DATABASE_URL` se genera automáticamente)*
 
 ---
 
-## 🌐 Paso 3: Deploy del Frontend
+## 🌐 Paso 2: Vercel - Frontend
 
-### Vercel Frontend Deploy
+### 2.1 Crear proyecto en Vercel
 
-1. **Crear nuevo proyecto:**
-   ```
-   Dashboard → New Project → Import Git Repository
-   ```
+1. **Ir a [vercel.com](https://vercel.com)**
+   - Login con GitHub
+   - New Project → Import Git Repository
+   - Seleccionar `danielvflores/Writook`
 
-2. **Configurar build:**
-   - Framework Preset: `Vite`
-   - Root Directory: `apps/frontend`
-   - Build Command: `npm run build`
-   - Output Directory: `dist`
+### 2.2 Configurar build
 
-3. **Variables de entorno:**
-   ```bash
-   VITE_API_BASE_URL=https://tu-backend.railway.app/api/v1
-   ```
+```
+Framework Preset: Vite
+Root Directory: apps/frontend
+Build Command: npm run build
+Output Directory: dist
+```
 
-4. **Deploy automático:**
-   - Cada push a `main` redeploya automáticamente
+### 2.3 Variable de entorno
+
+En Vercel, agregar:
+
+```bash
+VITE_API_BASE_URL=https://tu-backend.railway.app/api/v1
+```
+
+*(Reemplaza con la URL real que te dé Railway)*
 
 ---
 
-## 🔧 Configuración Final
+## 🔧 Paso 3: Configuración Final
 
-### Actualizar CORS
-Una vez tengas la URL del frontend, actualiza en Railway:
+### 3.1 Actualizar CORS
+Una vez tengas la URL de Vercel, actualizar en Railway:
 ```bash
 CORS_ALLOWED_ORIGINS=https://tu-app.vercel.app
 ```
 
-### Probar el deploy
+### 3.2 Probar el deploy
 1. ✅ Registrar usuario
-2. ✅ Crear historia
+2. ✅ Crear historia  
 3. ✅ Crear capítulo
 4. ✅ Comentar y calificar
 
@@ -119,30 +109,18 @@ CORS_ALLOWED_ORIGINS=https://tu-app.vercel.app
 
 ## 🐛 Troubleshooting
 
-### Backend no inicia
-- Revisa las variables de entorno
-- Verifica la `DATABASE_URL`
-- Checa los logs en Railway
+### Railway Backend
+- **No inicia:** Verificar variables de entorno y logs
+- **DB connection:** La `DATABASE_URL` debe estar presente
+- **Port binding:** Railway maneja el puerto automáticamente
 
-### Frontend no conecta
-- Verifica `VITE_API_BASE_URL`
-- Checa CORS en el backend
-- Usa las herramientas de desarrollador
-
-### Base de datos no migra
-- Flyway se ejecuta automáticamente
-- Si hay errores, verifica los archivos en `db/migration`
+### Vercel Frontend  
+- **Build fails:** Verificar dependencias en `package.json`
+- **API calls fail:** Verificar `VITE_API_BASE_URL` y CORS
+- **404 en rutas:** Vercel maneja SPA automáticamente
 
 ---
 
-## 📚 Recursos Útiles
+## 🎉 ¡Listo para Deploy!
 
-- [Railway Docs](https://docs.railway.app)
-- [Vercel Docs](https://vercel.com/docs)
-- [Spring Boot Deployment](https://spring.io/guides/topicals/spring-boot-docker/)
-
----
-
-## 🎉 ¡Siguiente Paso!
-
-¿Listo para empezar? Te guío paso a paso. ¿Prefieres Railway o Render para el backend?
+¿Empezamos con Railway? Te guío paso a paso.
