@@ -6,7 +6,7 @@ const config = {
     API_BASE_URL: 'http://localhost:8080/api/v1',
     APP_NAME: 'Writook (Dev)',
     DEBUG: true,
-    TINYMCE_API_KEY: 'qagffr3pkuv17a8on1afax661irst1hbr4e6tbv888sz91jc'
+    TINYMCE_API_KEY: import.meta.env.VITE_TINYMCE_API_KEY || 'no-api-key'
   },
   production: {
     API_BASE_URL: import.meta.env.VITE_API_BASE_URL || 'https://writook-backend.onrender.com/api/v1',

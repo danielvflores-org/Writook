@@ -1,6 +1,27 @@
-# Getting Started with Create React App
+# Writook Frontend
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A React-based frontend for the Writook creative writing platform.
+
+## Environment Setup
+
+Before running the application, you need to configure environment variables:
+
+1. Copy `.env.local.example` to `.env.local`:
+   ```bash
+   cp .env.local.example .env.local
+   ```
+
+2. Edit `.env.local` and add your actual API keys:
+   - `VITE_API_BASE_URL`: Backend API URL
+   - `VITE_TINYMCE_API_KEY`: TinyMCE API key for rich text editing
+
+### Getting a TinyMCE API Key
+
+1. Go to [TinyMCE Cloud](https://www.tiny.cloud/get-started/)
+2. Sign up for a free account
+3. Create an API key
+4. Add your domain to the approved domains list
+5. Add the API key to your `.env.local` file
 
 ## Available Scripts
 
