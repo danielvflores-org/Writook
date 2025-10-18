@@ -124,8 +124,8 @@
                 <artifactId>flyway-maven-plugin</artifactId>
                 <version>9.22.1</version>
                 <configuration>
-                    <url>jdbc:postgresql://localhost:5432/writook_library_db</url>
-                    <user>postgres</user>
+                    <url>${DATABASE_URL:jdbc:postgresql://localhost:5432/writook_library_db}</url>
+                    <user>${DB_USERNAME:postgres}</user>
                     <password>${DB_PASSWORD:}</password>
                     <locations>
                         <location>classpath:db/migration</location>
