@@ -109,6 +109,13 @@ export default function ChapterEditor() {
     promotion: false,
     statusbar: false,
     tracking: false,
+    // Disable premium features when no valid API key
+    ...(ENV_CONFIG.TINYMCE_API_KEY === 'no-api-key' && {
+      init_instance_callback: function (editor) {
+        // This will prevent some errors when no valid API key is present
+        console.log('TinyMCE Editor initialized without API key');
+      }
+    }),
     setup: (editor) => {
       editor.on('keyup', () => {
         const content = editor.getContent({ format: 'text' });
@@ -215,7 +222,7 @@ export default function ChapterEditor() {
 
           <div className="mb-6">
             <Editor
-              apiKey='qagffr3pkuv17a8on1afax661irst1hbr4e6tbv888sz91jc'
+              apiKey={ENV_CONFIG.TINYMCE_API_KEY === 'no-api-key' ? undefined : ENV_CONFIG.TINYMCE_API_KEY}
               onInit={(evt, editor) => editorRef.current = editor}
               value={content}
               onEditorChange={handleEditorChange}
