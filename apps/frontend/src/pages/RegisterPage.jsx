@@ -3,6 +3,7 @@ import { useState } from "react";
 import RegisterForm from "../components/RegisterForm";
 import Notification from "../components/Notification";
 import { useNotification } from "../hooks/useNotification";
+import { ENV_CONFIG } from '../config/environment';
 
 function RegisterPage() {
   const navigate = useNavigate();
@@ -13,7 +14,7 @@ function RegisterPage() {
     try {
       setIsLoading(true);
       
-      const response = await fetch("http://localhost:8080/api/v1/auth/register", {
+      const response = await fetch(`${ENV_CONFIG.API_BASE_URL}/auth/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
