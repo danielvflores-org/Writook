@@ -23,7 +23,7 @@ public class SecurityConfig {
     @Autowired
     private JwtAuthenticationFilter jwtAuthenticationFilter;
     
-    @Value("${cors.allowed-origins:http://localhost:3000}")
+    @Value("${cors.allowed-origins:https://writook.danielvflores.xyz}")
     private String allowedOrigins;
     
     @Bean
