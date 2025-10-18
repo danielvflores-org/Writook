@@ -8,7 +8,7 @@ const config = {
     DEBUG: true
   },
   production: {
-    API_BASE_URL: import.meta.env.VITE_API_BASE_URL || 'https://your-backend-domain.railway.app/api/v1',
+    API_BASE_URL: import.meta.env.VITE_API_BASE_URL || 'https://writook-backend.onrender.com/api/v1',
     APP_NAME: 'Writook',
     DEBUG: false
   }
