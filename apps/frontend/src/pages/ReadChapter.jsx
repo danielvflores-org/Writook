@@ -8,7 +8,7 @@ import StarRating from '../components/StarRating';
 import { useNotification } from '../hooks/useNotification';
 import { chapterRatingService } from '../services/chapterRatingService';
 import { storyService } from '../services/storyService';
-import { viewsService } from '../services/viewsService';
+import { ENV_CONFIG } from '../config/environment';
 
 export default function ReadChapter() {
   const { storyId, chapterNumber } = useParams();
@@ -45,7 +45,7 @@ export default function ReadChapter() {
       setLoading(true);
       
       // Load story data (public endpoint)
-      const response = await fetch(`http://localhost:8080/api/v1/stories/${storyId}`);
+      const response = await fetch(`${ENV_CONFIG.API_BASE_URL}/stories/${storyId}`);
       if (!response.ok) throw new Error('Story not found');
       
       const storyData = await response.json();

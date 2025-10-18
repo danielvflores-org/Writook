@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
+import { ENV_CONFIG } from './environment';
 
 // Create the context
 const AuthContext = createContext();
@@ -33,7 +34,7 @@ export const AuthProvider = ({ children }) => {
 
   const verifyToken = async (token) => {
     try {
-      const response = await fetch('http://localhost:8080/api/v1/auth/me', {
+      const response = await fetch(`${ENV_CONFIG.API_BASE_URL}/auth/me`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       
