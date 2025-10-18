@@ -44,3 +44,13 @@ CREATE INDEX idx_comments_story_id ON comments(story_id);
 CREATE INDEX idx_comments_user_id ON comments(user_id);
 CREATE INDEX idx_comments_created_at ON comments(created_at DESC);
 CREATE INDEX idx_comments_story_created ON comments(story_id, created_at DESC);
+
+-- Grant permissions to application user if it exists
+DO $$
+BEGIN
+    IF EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = 'writook_user') THEN
+        GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO writook_user;
+        GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO writook_user;
+    END IF;
+END
+$$;

@@ -105,3 +105,15 @@ FOR EACH ROW EXECUTE PROCEDURE refresh_updated_at_column();
 CREATE TRIGGER trg_refresh_updated_at_chapters
 BEFORE UPDATE ON chapters
 FOR EACH ROW EXECUTE PROCEDURE refresh_updated_at_column();
+
+-- Grant permissions to application user if it exists
+DO $$
+BEGIN
+    IF EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = 'writook_user') THEN
+        GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO writook_user;
+        GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO writook_user;
+        GRANT USAGE ON SCHEMA public TO writook_user;
+        GRANT EXECUTE ON FUNCTION refresh_updated_at_column() TO writook_user;
+    END IF;
+END
+$$;
