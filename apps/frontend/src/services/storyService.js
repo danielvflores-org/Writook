@@ -1,5 +1,8 @@
 // Service for handling story operations with statistics
 import { apiService, endpoints } from './apiService.js';
+import { ENV_CONFIG } from '../config/environment.js';
+
+const API_BASE = ENV_CONFIG.API_BASE_URL;
 
 export const storyService = {
   // Get all stories with statistics
