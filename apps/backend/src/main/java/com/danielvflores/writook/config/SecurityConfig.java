@@ -36,6 +36,7 @@ public class SecurityConfig {
                     "/api/v1/auth/register",
                     "/api/v1/auth/login",
                     "/api/v1/health").permitAll()
+                .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers(org.springframework.http.HttpMethod.GET,
                     "/api/v1/stories",
                     "/api/v1/stories/{id}",
