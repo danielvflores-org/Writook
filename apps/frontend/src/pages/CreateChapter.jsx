@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Editor } from '@tinymce/tinymce-react';
+import { ENV_CONFIG } from '../config/environment.js';
 import Notification from '../components/Notification';
 import Layout from '../components/Layout';
 import { useNotification } from '../hooks/useNotification';
@@ -78,7 +79,7 @@ export default function CreateChapter() {
     setLoading(true);
     try {
       // GET Story to get next chapter number
-      const storyResponse = await fetch(`http://localhost:8080/api/v1/stories/${storyId}`, {
+      const storyResponse = await fetch(`${ENV_CONFIG.API_BASE_URL}/stories/${storyId}`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('authToken')}`
         }
@@ -96,7 +97,7 @@ export default function CreateChapter() {
       };
 
       // Use new POST endpoint to add chapter
-      const response = await fetch(`http://localhost:8080/api/v1/stories/${storyId}/chapters`, {
+      const response = await fetch(`${ENV_CONFIG.API_BASE_URL}/stories/${storyId}/chapters`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',

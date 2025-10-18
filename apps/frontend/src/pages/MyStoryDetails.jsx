@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import useAuth from '../config/AuthContext.jsx';
+import { ENV_CONFIG } from '../config/environment.js';
 import Notification from '../components/Notification';
 import EditStoryModal from '../components/EditStoryModal';
 import Layout from '../components/Layout';
@@ -33,7 +34,7 @@ export default function MyStoryDetails() {
 
       const token = localStorage.getItem('authToken');
       
-      const ownershipResponse = await fetch(`http://localhost:8080/api/v1/stories/${storyId}/ownership`, {
+      const ownershipResponse = await fetch(`${ENV_CONFIG.API_BASE_URL}/stories/${storyId}/ownership`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -47,7 +48,7 @@ export default function MyStoryDetails() {
       }
       
       if (ownershipResponse.status === 403) {
-        const publicResponse = await fetch(`http://localhost:8080/api/v1/stories/${storyId}`);
+        const publicResponse = await fetch(`${ENV_CONFIG.API_BASE_URL}/stories/${storyId}`);
         
         if (publicResponse.ok) {
           const storyData = await publicResponse.json();

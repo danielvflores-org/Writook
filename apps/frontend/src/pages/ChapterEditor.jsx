@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Editor } from '@tinymce/tinymce-react';
 import useAuth from '../config/AuthContext.jsx';
+import { ENV_CONFIG } from '../config/environment.js';
 import Notification from '../components/Notification';
 import Layout from '../components/Layout';
 import { useNotification } from '../hooks/useNotification';
@@ -36,7 +37,7 @@ export default function ChapterEditor() {
       setLoading(true);
       
       // GET DATA WITH AUTHORIZATION AND OWNERSHIP VERIFICATION
-      const storyResponse = await fetch(`http://localhost:8080/api/v1/stories/${storyId}/ownership`, {
+      const storyResponse = await fetch(`${ENV_CONFIG.API_BASE_URL}/stories/${storyId}/ownership`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('authToken')}`
         }
@@ -142,7 +143,7 @@ export default function ChapterEditor() {
         number: parseInt(chapterId)
       };
 
-      const response = await fetch(`http://localhost:8080/api/v1/stories/${storyId}/edit/${chapterId}`, {
+      const response = await fetch(`${ENV_CONFIG.API_BASE_URL}/stories/${storyId}/edit/${chapterId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

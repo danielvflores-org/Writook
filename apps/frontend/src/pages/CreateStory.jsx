@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useAuth from '../config/AuthContext.jsx';
+import { ENV_CONFIG } from '../config/environment.js';
 import Notification from '../components/Notification';
 import Layout from '../components/Layout';
 import { useNotification } from '../hooks/useNotification';
@@ -91,7 +92,7 @@ export default function CreateStory() {
         rating: 0.0
       };
 
-      const response = await fetch('http://localhost:8080/api/v1/stories', {
+      const response = await fetch(`${ENV_CONFIG.API_BASE_URL}/stories`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

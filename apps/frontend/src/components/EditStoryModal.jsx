@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { ENV_CONFIG } from '../config/environment.js';
 import useNotification from '../hooks/useNotification';
 
 export default function EditStoryModal({ story, isOpen, onClose, onUpdate }) {
@@ -81,7 +82,7 @@ export default function EditStoryModal({ story, isOpen, onClose, onUpdate }) {
         tags: formData.tags
       };
 
-      const response = await fetch(`http://localhost:8080/api/v1/stories/${story.id}/metadata`, {
+      const response = await fetch(`${ENV_CONFIG.API_BASE_URL}/stories/${story.id}/metadata`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
