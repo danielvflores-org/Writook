@@ -1,5 +1,7 @@
 // Service for handling chapter-specific comments
-const API_BASE = 'http://localhost:8080/api/v1/chapters';
+import { ENV_CONFIG } from '../config/environment.js';
+
+const API_BASE = `${ENV_CONFIG.API_BASE_URL}/chapters`.replace('/api/v1/api/v1', '/api/v1');
 
 export const chapterCommentService = {
   // Create a new chapter comment

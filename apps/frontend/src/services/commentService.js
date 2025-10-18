@@ -1,5 +1,7 @@
 // Service for handling story comments
-const API_BASE = 'http://localhost:8080/api/v1';
+import { ENV_CONFIG } from '../config/environment.js';
+
+const API_BASE = ENV_CONFIG.API_BASE_URL;
 
 export const commentService = {
   // Create a new comment

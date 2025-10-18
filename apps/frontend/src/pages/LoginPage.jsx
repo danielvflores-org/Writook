@@ -4,6 +4,7 @@ import LoginForm from "../components/LoginForm";
 import useAuth from "../config/AuthContext.jsx";
 import Notification from "../components/Notification";
 import { useNotification } from "../hooks/useNotification";
+import { ENV_CONFIG } from '../config/environment';
 
 function LoginPage() {
   const { login } = useAuth();
@@ -15,7 +16,7 @@ function LoginPage() {
     try {
       setIsLoading(true);
       
-      const response = await fetch("http://localhost:8080/api/v1/auth/login", {
+      const response = await fetch(`${ENV_CONFIG.API_BASE_URL}/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
